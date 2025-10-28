@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="J2N" Version="2.2.0-alpha-0026" />
+    <PackageReference Include="J2N" VersionOverride="2.2.0-alpha-0026" />
   </ItemGroup>
 
 </Project>
