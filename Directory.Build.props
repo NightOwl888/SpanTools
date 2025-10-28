@@ -1,3 +1,73 @@
 <Project>
 
+  <PropertyGroup>
+    <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
+    <LangVersion>12.0</LangVersion>
+    <GitHubOrganization>NightOwl888</GitHubOrganization>
+    <GitHubProject>SpanTools</GitHubProject>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Debug Settings">
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Version Settings">
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Nerdbank.GitVersioning Settings">
+    <NBGV_EmitThisAssemblyClass>false</NBGV_EmitThisAssemblyClass>
+  </PropertyGroup>
+
+  <PropertyGroup Label="NuGet Package Defaults">
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Assembly Signing">
+    <AssemblyOriginatorKeyFile>$(RepositoryRoot)eng/key.snk</AssemblyOriginatorKeyFile>
+    <PublicKey>00240000048000009400000006020000002400005253413100040000010001007962e8594094011a8c8cb8ed4eed9350557b890a9854b728db5143b03c4e9f39fa13cbfa58f2a1c42f9424ade1b3013f3451badeeefd89b470492499184f04d3080104ec3003e1d324653d966070b3d9f8c5c12a5d4dc66eee608d7f23a375a6a5ce4ce465f76f69da01eeebca61d8a704cc88e2505de8d463435fc03ad03bcc</PublicKey>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Assembly Publishing">
+    <IsPublishable>false</IsPublishable>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Copyright Info">
+    <Product>Lucene.Net</Product>
+    <Company>The Apache Software Foundation</Company>
+    <CurrentYear Condition=" '$(CurrentYear)' == '' ">$([System.DateTime]::UtcNow.Year.ToString())</CurrentYear>
+    <BeginCopyrightYear>2025</BeginCopyrightYear>
+    <CopyrightYearRange>$(BeginCopyrightYear) - $(CurrentYear)</CopyrightYearRange>
+    <CopyrightYearRange Condition=" '$(BeginCopyrightYear)' == '$(CurrentYear)' ">$(CurrentYear)</CopyrightYearRange>
+    <Copyright>Copyright © $(CopyrightYearRange) $(Company)</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Label="SourceLink Settings: https://github.com/dotnet/sourcelink/blob/main/README.md">
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(BUILD_REPOSITORY_PROVIDER)' == 'GitHub' Or '$(BUILD_REPOSITORY_PROVIDER)' == 'TfsGit' " Label="Deterministic builds: https://github.com/clairernovotny/DeterministicBuilds#readme">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Fake Folder Projects" Condition="'$(MSBuildProjectExtension)' == '.folderproj'">
+    <!-- Required, but irrelevant -->
+    <TargetFramework>netstandard2.0</TargetFramework>
+
+    <!-- Redirect output so it doesn't end up in the main folder. -->
+    <BaseOutputPath>$(MSBuildThisFileDirectory)..\_artifacts\noop\$(MSBuildProjectName)\bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)..\_artifacts\noop\$(MSBuildProjectName)\obj\</BaseIntermediateOutputPath>
+    <OutputPath>$(BaseOutputPath)</OutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+
+    <!-- Do not run on solution builds -->
+    <OutputType>None</OutputType>
+    <BuildProjectReferences>false</BuildProjectReferences>
+    <SkipBuild>true</SkipBuild>
+    <SkipGitVersioning>true</SkipGitVersioning>
+  </PropertyGroup>
+
 </Project>
