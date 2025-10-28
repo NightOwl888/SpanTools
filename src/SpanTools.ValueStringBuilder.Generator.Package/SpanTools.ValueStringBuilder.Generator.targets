@@ -1,0 +1,114 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- 
+    Generates a props-like configuration file that the generator reads as an AdditionalFile.
+    Runs before CoreCompile so the file exists when the generator executes.
+  -->
+  <Target Name="GenerateValueStringBuilderProps"
+          BeforeTargets="CoreCompile">
+
+    <!-- Try to get explicit Version from PackageReference metadata first (works if user supplied Version directly) -->
+    <ItemGroup>
+      <!-- filter PackageReference(s) with matching ID -->
+      <_J2N_PkgRef Include="@(PackageReference)" Condition="'%(PackageReference.Identity)' == 'J2N'" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <!-- If PackageReference exists and has Version metadata, use it -->
+      <_J2N_PkgRef_Version Condition="'%(_J2N_PkgRef.Version)' != ''">%(_J2N_PkgRef.Version)</_J2N_PkgRef_Version>
+
+      <!-- ProjectAssetsFile property is defined by restore -->
+      <_ProjectAssetsFile>$(ProjectAssetsFile)</_ProjectAssetsFile>
+    </PropertyGroup>
+
+    <!-- Call inline task only if we don't already have Version from PackageReference -->
+    <ExtractPackageVersionFromAssets
+        Condition="'$(_J2N_PkgRef_Version)' == '' and '$(ProjectAssetsFile)' != ''"
+        ProjectAssetsFile="$(_ProjectAssetsFile)"
+        PackageId="J2N">
+      <Output TaskParameter="PackageVersion" PropertyName="_J2N_FromAssets_Version" />
+    </ExtractPackageVersionFromAssets>
+
+    <!-- Decide final J2N package version -->
+    <PropertyGroup>
+      <_J2N_ResolvedPackageVersion Condition="'$(_J2N_PkgRef_Version)' != ''">$(_J2N_PkgRef_Version)</_J2N_ResolvedPackageVersion>
+      <_J2N_ResolvedPackageVersion Condition="'$(_J2N_PkgRef_Version)' == '' and '$(_J2N_FromAssets_Version)' != ''">$(_J2N_FromAssets_Version)</_J2N_ResolvedPackageVersion>
+      <!-- If still empty, no package found -->
+    </PropertyGroup>
+    
+    <PropertyGroup>
+      <_VSBPropsFile>$(IntermediateOutputPath)ValueStringBuilder.Generator.props</_VSBPropsFile>
+    </PropertyGroup>
+
+    <!-- Batch all generator-related settings here -->
+    <ItemGroup>
+      <VSBProps Include="ValueStringBuilder_Namespace=$(ValueStringBuilder_Namespace)" />
+      <VSBProps Include="ValueStringBuilder_IncludeMaxLengthTracking=$(ValueStringBuilder_IncludeMaxLengthTracking)" />
+      <VSBProps Include="ValueStringBuilder_IncludeAsMemoryMethods=$(ValueStringBuilder_IncludeAsMemoryMethods)" />
+      <VSBProps Include="ValueStringBuilder_IncludesJ2N=$(ValueStringBuilder_IncludesJ2N)" />
+      <VSBProps Include="ValueStringBuilder_J2NPackageVersion=$(_J2N_ResolvedPackageVersion)" />
+      <VSBProps Include="ValueStringBuilder_UseJavaStyleFormatting=$(ValueStringBuilder_UseJavaStyleFormatting)" />
+      <!-- Add future properties here -->
+    </ItemGroup>
+
+    <!-- Write all properties to one file -->
+    <WriteLinesToFile
+        File="$(_VSBPropsFile)"
+        Lines="@(VSBProps)"
+        Overwrite="true" />
+
+    <!-- Ensure Roslyn sees it as an AdditionalFile -->
+    <ItemGroup>
+      <AdditionalFiles Include="$(_VSBPropsFile)" />
+    </ItemGroup>
+
+  </Target>
+
+  <!-- Inline task to read project.assets.json and extract package version for a PackageId -->
+  <UsingTask
+    TaskName="ExtractPackageVersionFromAssets"
+    TaskFactory="RoslynCodeTaskFactory"
+    AssemblyName="Microsoft.Build.Tasks.Core">
+    <ParameterGroup>
+      <ProjectAssetsFile ParameterType="System.String" Required="true" />
+      <PackageId ParameterType="System.String" Required="true" />
+      <PackageVersion Output="true" ParameterType="System.String" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+          PackageVersion = String.Empty;
+          try
+          {
+              if (String.IsNullOrEmpty(ProjectAssetsFile) || !File.Exists(ProjectAssetsFile))
+                  return true; // no assets file
+
+              string json = File.ReadAllText(ProjectAssetsFile);
+
+              // project.assets.json "libraries" has keys like "J2N/2.0.1" or "J2N/2.0.1-beta"
+              // We'll search for a library key that starts with the package id + '/'
+              // This is a light-weight approach that avoids a JSON lib dependency.
+              // Regex: match "J2N/1.2.3" within quotes.
+              string pattern = "\"" + Regex.Escape(PackageId) + "/([^\"\\s]+)\"";
+              var m = Regex.Match(json, pattern, RegexOptions.IgnoreCase);
+              if (m.Success && m.Groups.Count > 1)
+              {
+                  PackageVersion = m.Groups[1].Value;
+                  return true;
+              }
+
+              // Fallback: some assets files may have it under "packages" or other places,
+              // but the above is normally sufficient for resolved library versions.
+          }
+          catch
+          {
+              // swallow: we return empty to indicate not found.
+          }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+</Project>

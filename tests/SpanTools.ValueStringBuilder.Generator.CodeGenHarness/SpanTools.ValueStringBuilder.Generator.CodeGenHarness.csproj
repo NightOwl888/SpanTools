@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>SpanTools.CodeGenHarness</RootNamespace>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\Generated</CompilerGeneratedFilesOutputPath>
+
+    <!-- Define your custom properties here -->
+    <ValueStringBuilder_AllowUnsafeBlocks>true</ValueStringBuilder_AllowUnsafeBlocks>
+    <ValueStringBuilder_IncludeAsMemoryMethods>false</ValueStringBuilder_IncludeAsMemoryMethods>
+    <ValueStringBuilder_IncludeMaxLengthTracking>true</ValueStringBuilder_IncludeMaxLengthTracking>
+    <ValueStringBuilder_Namespace>MyNamespace</ValueStringBuilder_Namespace>
+    <ValueStringBuilder_UseJavaStyleFormatting>true</ValueStringBuilder_UseJavaStyleFormatting>
+  </PropertyGroup>
+
+  <Import Project="..\..\src\SpanTools.ValueStringBuilder.Generator.Package\SpanTools.ValueStringBuilder.Generator.targets" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SpanTools.ValueStringBuilder.Generator\SpanTools.ValueStringBuilder.Generator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="J2N" Version="2.2.0-alpha-0026" />
+  </ItemGroup>
+
+</Project>
