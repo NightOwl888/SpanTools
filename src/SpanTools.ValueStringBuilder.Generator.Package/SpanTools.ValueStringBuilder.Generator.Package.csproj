@@ -2,6 +2,46 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
+
+    <!-- We intentionally don't have a ref or lib directory in our NuGet package because this is an analyzer-only package -->
+    <NoWarn>$(NoWarn);NU5127;NU5128</NoWarn>
   </PropertyGroup>
+
+  <PropertyGroup Label="NuGet Package Settings">
+    <PackageId>SpanTools.ValueStringBuilder.Generator</PackageId>
+    <Description>A ValueStringBuilder implementation that is generated in your project as a partial ref struct so it can be extended easily.</Description>
+    <PackageTags>$(PackageTags);ValueStringBuilder;Text Tools;ReadOnlySpan;ReadOnlyMemory;Mutable Text</PackageTags>
+    <PackageOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\_artifacts\NuGetPackages'))</PackageOutputPath>
+    <ValueStringBuilderGeneratorPackageVersionPropsFile>$(PackageOutputPath)\SpanTools.ValueStringBuilder.Generator.Version.props</ValueStringBuilderGeneratorPackageVersionPropsFile>
+  </PropertyGroup>
+
+  <PropertyGroup Label="NuGet Package File Paths">
+    <ValueStringBuilderGeneratorBuildTargetsFile>$(MSBuildThisFileDirectory)SpanTools.ValueStringBuilder.Generator.targets</ValueStringBuilderGeneratorBuildTargetsFile>
+    <ValueStringBuilderGeneratorAssemblyFile>$(RepositoryRoot)src\SpanTools.ValueStringBuilder.Generator\bin\$(Configuration)\$(TargetFramework)\SpanTools.ValueStringBuilder.Generator.dll</ValueStringBuilderGeneratorAssemblyFile>
+  </PropertyGroup>
+
+  <ItemGroup Label="NuGet Package Files">
+    <None Include="$(ValueStringBuilderGeneratorBuildTargetsFile)" Pack="true" PackagePath="build/SpanTools.ValueStringBuilder.Generator.targets" />
+
+    <!-- TODO: Add a readme for this package specifically. The plan is to make the tools to generate license files part of this solution, so we will need separate readme files. -->
+    <!--<None Include="readme.md" Pack="true" PackagePath="\readme.md" />-->
+    <None Include="$(ValueStringBuilderGeneratorAssemblyFile)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- We only need this to ensure it is built before this project is. We include all dependent projects because
+         it is required by the MSBuild target below. Granted, including only SPDX.CodeAnalysis.CSharp.csproj would work
+         in normal scenarios, but when executing an MSBuild target from a consuming project (SPDX.CodeAnalysis.Sample.csproj),
+         these are required to be built first and in the order that they are listed here. -->
+    <ProjectReference Include="..\SpanTools.ValueStringBuilder.Generator\SpanTools.ValueStringBuilder.Generator.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <Target Name="EnsureDependenciesBuilt" BeforeTargets="PrepareForBuild">
+    <MSBuild Projects="@(ProjectReference)" Targets="Restore;PrepareForBuild;Build" Properties="Configuration=$(Configuration)" BuildInParallel="false" />
+  </Target>
 
 </Project>
