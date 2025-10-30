@@ -9,7 +9,6 @@
     <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\Generated</CompilerGeneratedFilesOutputPath>
 
     <!-- Define your custom properties here -->
-    <ValueStringBuilder_AllowUnsafeBlocks>true</ValueStringBuilder_AllowUnsafeBlocks>
     <ValueStringBuilder_IncludeAsMemoryMethods>false</ValueStringBuilder_IncludeAsMemoryMethods>
     <ValueStringBuilder_IncludeMaxLengthTracking>true</ValueStringBuilder_IncludeMaxLengthTracking>
     <ValueStringBuilder_Namespace>MyNamespace</ValueStringBuilder_Namespace>
