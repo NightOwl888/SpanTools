@@ -25,8 +25,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <!-- Detect if PackageOutputPath was passed explicitly on the command line -->
+    <_IsPackageOutputPathOverridden>$([System.Text.RegularExpressions.Regex]::IsMatch('$(MSBuildCommandLineArgs)', '(?i)(?:^|[ ;])[-/]p:PackageOutputPath='))</_IsPackageOutputPathOverridden>
     <_ArtifactsDirectory>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\_artifacts'))</_ArtifactsDirectory>
     <_NuGetPackageOutputPath>$(_ArtifactsDirectory)\NuGetPackages\$(Configuration)</_NuGetPackageOutputPath>
+    <_NuGetPackageOutputPath Condition=" '$(_IsPackageOutputPathOverridden.ToLower())' == 'true' ">$(PackageOutputPath)</_NuGetPackageOutputPath>
     <_PackageVersionPropsFilePath>$(_NuGetPackageOutputPath)\SpanTools.ValueStringBuilder.Generator.Version.props</_PackageVersionPropsFilePath>
     <!-- We install the analyzer package in a local directory so we don't pollute the
           .nuget cache on the dev machine with temporary builds -->
