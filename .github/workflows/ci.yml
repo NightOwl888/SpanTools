@@ -138,7 +138,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Download NuGet Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: nuget-packages
           path: ${{ github.workspace }}/_artifacts/NuGetPackages/${{ matrix.configuration || 'Release' }}
