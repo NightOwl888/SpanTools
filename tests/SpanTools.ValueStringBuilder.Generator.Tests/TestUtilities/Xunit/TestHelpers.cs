@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Xunit;
 
-namespace SpanTools.Generator.Tests
+namespace SpanTools.TestUtilities.Xunit
 {
     public static class TestHelpers
     {
