@@ -49,14 +49,14 @@ namespace SpanTools.TestUtilities.Xunit
             try
             {
                 action(span);
-                Assert.False(true, "Expected exception: " + typeof(E).GetType());
+                Assert.Fail("Expected exception: " + typeof(E).GetType());
             }
             catch (E)
             {
             }
             catch (Exception wrongException)
             {
-                Assert.False(true, "Wrong exception thrown: Expected " + typeof(E).GetType() + ": Actual: " + wrongException.GetType());
+                Assert.Fail("Wrong exception thrown: Expected " + typeof(E).GetType() + ": Actual: " + wrongException.GetType());
             }
         }
 
@@ -113,14 +113,14 @@ namespace SpanTools.TestUtilities.Xunit
             try
             {
                 action(span);
-                Assert.False(true, "Expected exception: " + typeof(E).GetType());
+                Assert.Fail("Expected exception: " + typeof(E).GetType());
             }
             catch (E)
             {
             }
             catch (Exception wrongException)
             {
-                Assert.False(true, "Wrong exception thrown: Expected " + typeof(E).GetType() + ": Actual: " + wrongException.GetType());
+                Assert.Fail("Wrong exception thrown: Expected " + typeof(E).GetType() + ": Actual: " + wrongException.GetType());
             }
         }
 

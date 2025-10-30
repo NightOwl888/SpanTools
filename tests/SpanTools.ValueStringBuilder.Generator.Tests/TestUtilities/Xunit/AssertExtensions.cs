@@ -174,7 +174,7 @@ namespace SpanTools.TestUtilities.Xunit
                 // but the .NET Framework exception is not.
                 if (typeof(ArgumentException).IsAssignableFrom(typeof(TNetFxExceptionType)))
                 {
-                    Exception exception = Assert.Throws(typeof(TNetFxExceptionType), action);
+                    Exception exception = Assert.Throws<TNetFxExceptionType>(action);
                     Assert.Equal(expectedParamName, ((ArgumentException)exception).ParamName);
                 }
                 else
