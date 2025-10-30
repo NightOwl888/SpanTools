@@ -54,6 +54,18 @@
     <PackageReference Include="SpanTools.ValueStringBuilder.Generator" VersionOverride="$(_SpanToolsPackageVersion)" />
   </ItemGroup>
 
+  <!-- When the generator package is available -->
+  <ItemGroup Condition="Exists('$(_PackageVersionPropsFilePath)')">
+    <!-- Include all test files -->
+    <Compile Include="**\*.cs" Exclude="TestPackageNotBuilt.cs" />
+  </ItemGroup>
+
+  <!-- When the generator package is missing -->
+  <ItemGroup Condition="!Exists('$(_PackageVersionPropsFilePath)')">
+    <!-- Only include the single test file that signals failure -->
+    <Compile Include="TestPackageNotBuilt.cs" />
+  </ItemGroup>
+
   <Target Name="EnsureNuGetPackageBuilt" BeforeTargets="PrepareForBuild" Condition="'$(DesignTimeBuild)' != 'true'">
 
     <Message Importance="high" Text="Running NuGet Package Build..." />
