@@ -57,6 +57,7 @@ jobs:
         shell: pwsh
         run: |
           $nugetOut = Join-Path $env:DIST_DIR 'nuget'
+          New-Item -ItemType Directory -Force -Path $nugetOut
           dotnet build -c Release --no-restore -p:PackageOutputPath=$nugetOut
 
       - name: Upload NuGet packages
