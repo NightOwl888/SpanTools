@@ -59,37 +59,11 @@ jobs:
           $nugetOut = Join-Path $env:DIST_DIR 'nuget'
           dotnet build -c Release --no-restore -p:PackageOutputPath=$nugetOut
 
-      - name: Publish Test Assemblies
-        shell: pwsh
-        run: |
-          $testsOut = Join-Path $env:DIST_DIR 'testBinaries'
-          New-Item -ItemType Directory -Force -Path $testsOut | Out-Null
-
-          # Find all csproj files where a segment is exactly 'Tests'
-          Get-ChildItem -Recurse -Filter *.csproj | ForEach-Object {
-            Write-Host "Found project: $($_.FullName)"
-            $segments = $_.BaseName -split '\.'
-            if ($segments -contains 'Tests') {
-                $projName = $_.BaseName
-                $outDir = Join-Path $testsOut $projName
-                New-Item -ItemType Directory -Force -Path $outDir | Out-Null
-                Write-Host "Publishing $($_.FullName) -> $outDir"
-                dotnet publish $_.FullName -c Release --no-build -o $outDir --verbosity normal
-                if ($LASTEXITCODE -ne 0) { throw "Publish failed for $($_.FullName)" }
-            }
-          }
-
       - name: Upload NuGet packages
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: nuget-packages
           path: ${{ env.DIST_DIR }}/nuget
-
-      - name: Upload Test Assemblies
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: test-assemblies
-          path: ${{ env.DIST_DIR }}/testBinaries
 
   test:
     needs: build
@@ -115,6 +89,9 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       # Set up working directories/paths consistently
       - name: Set Paths (Windows)
@@ -159,11 +136,11 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Download Test Binaries
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+      - name: Download NuGet Artifacts
+        uses: actions/download-artifact@v3
         with:
-          name: test-assemblies
-          path: ${{ env.WORKPATH }}
+          name: nuget-packages
+          path: ${{ github.workspace }}/_artifacts/NuGetPackages/${{ matrix.configuration || 'Release' }}
 
       - name: Install Coverage
         shell: pwsh
@@ -182,17 +159,20 @@ jobs:
           $includesCoverage = $false
           $results = @()
 
-          Get-ChildItem -Directory $env:WORKPATH | ForEach-Object {
-              $dllPath = Join-Path $_.FullName ($_.Name + ".dll")
-              $resultsDirectory = Join-Path $env:TEST_RESULTS_ROOT_DIR $_.Name
-              New-Item -ItemType Directory -Force -Path $resultsDirectory | Out-Null
+          # Find all csproj files where a segment is exactly 'Tests'
+          Get-ChildItem -Recurse -Filter *.csproj | ForEach-Object {
+              Write-Host "Found project: $($_.FullName)"
+              $segments = $_.BaseName -split '\.'
+              if ($segments -contains 'Tests') {
+                  $projFile = $_.FullName
+                  $resultsDirectory = Join-Path $env:TEST_RESULTS_ROOT_DIR $_.Name
+                  New-Item -ItemType Directory -Force -Path $resultsDirectory | Out-Null
 
-              if (Test-Path $dllPath) {
-                  Write-Host "Running tests in $dllPath..."
+                  Write-Host "Running tests in $projFile..."
 
                   # Build as array of arguments (excluding the "dotnet" prefix and -- arguments)
                   $testCmd = @(
-                      "test", $dllPath,
+                      "test", "$projFile",
                       "--framework", "${{ matrix.tfm }}",
                       "--logger:console;verbosity=normal",
                       "--logger:trx;LogFileName=TestResults.trx",
