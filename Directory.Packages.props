@@ -11,7 +11,7 @@
   <ItemGroup Label="NuGet Package Reference Versions">
     <PackageVersion Include="J2N" Version="2.1.0" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.115" />
-    <PackageVersion Include="NUnit" Version="4.4.0" />
+    <PackageVersion Include="NUnit" Version="3.14.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="5.1.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="$(RoslynAnalyzerPackageVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynAnalyzerPackageVersion)" />

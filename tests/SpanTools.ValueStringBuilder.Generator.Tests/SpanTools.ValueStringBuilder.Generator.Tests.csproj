@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
-
+    <RootNamespace>SpanTools.Generator.Tests</RootNamespace>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
@@ -18,6 +18,10 @@
   <ItemGroup Label="ValueStringBuilder Options">
     <PackageReference Include="J2N" VersionOverride="2.2.0-alpha-0026" />
   </ItemGroup>
+
+  <PropertyGroup Label="Compilation Options">
+    <DefineConstants Condition=" '$(AllowUnsafeBlocks.ToLower())' == 'true' ">$(DefineConstants);FEATURE_COMPILE_UNSAFE</DefineConstants>
+  </PropertyGroup>
 
   <PropertyGroup>
     <_ArtifactsDirectory>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\_artifacts'))</_ArtifactsDirectory>
