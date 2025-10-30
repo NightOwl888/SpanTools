@@ -65,6 +65,9 @@
           we need to clear the project local NuGet cache. -->
     <ForceDeleteDirectory DirectoryPath="$(_RestorePackagesPath)" />
 
+    <!-- Mark restore data as stale so MSBuild will re-run restore -->
+    <Delete Files="$(BaseIntermediateOutputPath)project.assets.json" ContinueOnError="true" />
+
     <!-- Restore again, now that the .nupkg should exist -->
     <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Restore" Properties="Configuration=$(Configuration)" />
   </Target>
