@@ -15,9 +15,10 @@
     <PackageId>SpanTools.ValueStringBuilder.Generator</PackageId>
     <Description>A ValueStringBuilder implementation that is generated in your project as a partial ref struct so it can be extended easily.</Description>
     <PackageTags>$(PackageTags);ValueStringBuilder;Text Tools;ReadOnlySpan;ReadOnlyMemory;Mutable Text</PackageTags>
-    <PackageOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\_artifacts\NuGetPackages'))</PackageOutputPath>
-    <ValueStringBuilderGeneratorPackageVersionPropsFile>$(PackageOutputPath)\SpanTools.ValueStringBuilder.Generator.Version.props</ValueStringBuilderGeneratorPackageVersionPropsFile>
-  </PropertyGroup>
+    <PackageOutputPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\_artifacts\NuGetPackages\$(Configuration)'))</PackageOutputPath>
+    <_PackageVersionPropsFile>$(PackageOutputPath)\SpanTools.ValueStringBuilder.Generator.Version.props</_PackageVersionPropsFile>
+  
+</PropertyGroup>
 
   <PropertyGroup Label="NuGet Package File Paths">
     <ValueStringBuilderGeneratorBuildTargetsFile>$(MSBuildThisFileDirectory)SpanTools.ValueStringBuilder.Generator.targets</ValueStringBuilderGeneratorBuildTargetsFile>
@@ -42,6 +43,58 @@
 
   <Target Name="EnsureDependenciesBuilt" BeforeTargets="PrepareForBuild">
     <MSBuild Projects="@(ProjectReference)" Targets="Restore;PrepareForBuild;Build" Properties="Configuration=$(Configuration)" BuildInParallel="false" />
+  </Target>
+
+  <UsingTask TaskName="GenerateVersionProps" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+
+    <ParameterGroup>
+      <OutputFile ParameterType="System.String" Required="true" />
+      <Version ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+
+    <Task>
+      <Using Namespace="System.Xml" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            var trimmedVersion = Version.Trim();
+            var settings = new XmlWriterSettings { Indent = true };
+            using (var writer = XmlWriter.Create(OutputFile, settings))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("Project");
+                writer.WriteStartElement("PropertyGroup");
+                writer.WriteElementString("_SpanToolsPackageVersion", trimmedVersion);
+                writer.WriteEndElement(); // PropertyGroup
+                writer.WriteEndElement(); // Project
+                writer.WriteEndDocument();
+            }
+          ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="AppendDebugTimestampToPackageVersion"
+        AfterTargets="GetBuildVersion">
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+      <!-- Append timestamp every ~2 seconds -->
+      <PackageVersion>
+        $(PackageVersion)-debug-$([System.DateTime]::UtcNow.DayOfYear)-$([System.Math]::Floor($([System.DateTime]::UtcNow.TimeOfDay.TotalSeconds)))
+      </PackageVersion>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="GeneratePackageVersionProps" DependsOnTargets="GetBuildVersion" AfterTargets="BeforeBuild">
+    <MakeDir Directories="$(PackageOutputPath)" Condition="!Exists('$(PackageOutputPath)')" />
+
+    <GenerateVersionProps OutputFile="$(_PackageVersionPropsFile)" Version="$(PackageVersion)" />
+  </Target>
+
+  <Target Name="CleanNuGetPackagesDirectory" AfterTargets="Clean">
+    <ItemGroup>
+      <__NuGetFilePaths Include="$(PackageOutputPath)\*.nupkg" />
+    </ItemGroup>
+
+    <Delete Files="@(__NuGetFilePaths);$(_PackageVersionPropsFile)" />
   </Target>
 
 </Project>
