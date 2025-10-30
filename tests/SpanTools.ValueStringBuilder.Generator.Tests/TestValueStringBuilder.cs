@@ -11,6 +11,12 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Xunit;
 
+// Placeholder namespace so we don't get compile errors on using directives before the code is generated.
+namespace MyNamespace
+{
+    internal sealed class DummyClass { }
+}
+
 namespace SpanTools.Generator.Tests
 {
     public partial class ValueStringBuilderTests
