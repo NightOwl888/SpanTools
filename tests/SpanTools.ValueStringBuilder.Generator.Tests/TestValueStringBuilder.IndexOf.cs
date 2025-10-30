@@ -3,14 +3,10 @@
 
 using J2N.Globalization;
 using MyNamespace;
-using NUnit.Framework;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Xunit;
 
 namespace SpanTools.Generator.Tests
 {
@@ -136,21 +132,24 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-
-        [TestCaseSource(nameof(IndexOfCharTestData))]
+        [Theory]
+        [MemberData(nameof(IndexOfCharTestData))]
         public void Test_IndexOf_Char(string source, char target, int expected)
         {
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
             sb.Append(source);
 
             int actual = sb.IndexOf(target);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestCaseSource(nameof(IndexOfStringTestData))]
+        [Theory]
+        [MemberData(nameof(IndexOfStringTestData))]
         public void Test_IndexOf_ReadOnlySpan(string source, string target, int expected, StringComparison comparison, CultureInfo? culture)
         {
-            Assume.That(comparison, Is.EqualTo(StringComparison.Ordinal));
+            //Assume.That(comparison, Is.EqualTo(StringComparison.Ordinal));
+            if (comparison != StringComparison.Ordinal)
+                return;
 
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
             sb.Append(source);
@@ -158,10 +157,11 @@ namespace SpanTools.Generator.Tests
             using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
 
             int actual = sb.IndexOf(target.AsSpan());
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestCaseSource(nameof(IndexOfStringTestData))]
+        [Theory]
+        [MemberData(nameof(IndexOfStringTestData))]
         public void Test_IndexOf_String_StringComparison(string source, string target, int expected, StringComparison comparison, CultureInfo? culture)
         {
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
@@ -170,10 +170,11 @@ namespace SpanTools.Generator.Tests
             using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
 
             int actual = sb.IndexOf(target, comparison);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestCaseSource(nameof(IndexOfStringTestData))]
+        [Theory]
+        [MemberData(nameof(IndexOfStringTestData))]
         public void Test_IndexOf_ReadOnlySpan_StringComparison(string source, string target, int expected, StringComparison comparison, CultureInfo? culture)
         {
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
@@ -182,10 +183,11 @@ namespace SpanTools.Generator.Tests
             using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
 
             int actual = sb.IndexOf(target.AsSpan(), comparison);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestCaseSource(nameof(IndexOfStringTestData))]
+        [Theory]
+        [MemberData(nameof(IndexOfStringTestData))]
         public void Test_IndexOf_String_Int32_StringComparison(string source, string target, int expected, StringComparison comparison, CultureInfo? culture)
         {
             int startIndex = 16;
@@ -196,10 +198,11 @@ namespace SpanTools.Generator.Tests
             using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
 
             int actual = sb.IndexOf(target, startIndex, comparison);
-            Assert.AreEqual(expected + startIndex, actual);
+            Assert.Equal(expected + startIndex, actual);
         }
 
-        [TestCaseSource(nameof(IndexOfStringTestData))]
+        [Theory]
+        [MemberData(nameof(IndexOfStringTestData))]
         public void Test_IndexOf_ReadOnlySpan_Int32_StringComparison(string source, string target, int expected, StringComparison comparison, CultureInfo? culture)
         {
             int startIndex = 16;
@@ -210,24 +213,27 @@ namespace SpanTools.Generator.Tests
             using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
 
             int actual = sb.IndexOf(target.AsSpan(), startIndex, comparison);
-            Assert.AreEqual(expected + startIndex, actual);
+            Assert.Equal(expected + startIndex, actual);
         }
 
-
-        [TestCaseSource(nameof(LastIndexOfCharTestData))]
+        [Theory]
+        [MemberData(nameof(LastIndexOfCharTestData))]
         public void Test_LastIndexOf_Char(string source, char target, int expected)
         {
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
             sb.Append(source);
 
             int actual = sb.LastIndexOf(target);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestCaseSource(nameof(LastIndexOfStringTestData))]
+        [Theory]
+        [MemberData(nameof(LastIndexOfStringTestData))]
         public void Test_LastIndexOf_ReadOnlySpan(string source, string target, int expected, StringComparison comparison, CultureInfo? culture)
         {
-            Assume.That(comparison, Is.EqualTo(StringComparison.Ordinal));
+            //Assume.That(comparison, Is.EqualTo(StringComparison.Ordinal));
+            if (comparison != StringComparison.Ordinal)
+                return;
 
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
             sb.Append(source);
@@ -235,12 +241,13 @@ namespace SpanTools.Generator.Tests
             using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
 
             int actual = sb.LastIndexOf(target.AsSpan());
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
 #if NET5_0_OR_GREATER
 
-        [TestCaseSource(nameof(LastIndexOfStringTestData))]
+        [Theory]
+        [MemberData(nameof(LastIndexOfStringTestData))]
         public void Test_LastIndexOf_String_StringComparison(string source, string target, int expected, StringComparison comparison, CultureInfo? culture)
         {
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
@@ -249,10 +256,11 @@ namespace SpanTools.Generator.Tests
             using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
 
             int actual = sb.LastIndexOf(target, comparison);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestCaseSource(nameof(LastIndexOfStringTestData))]
+        [Theory]
+        [MemberData(nameof(LastIndexOfStringTestData))]
         public void Test_LastIndexOf_ReadOnlySpan_StringComparison(string source, string target, int expected, StringComparison comparison, CultureInfo? culture)
         {
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
@@ -261,10 +269,11 @@ namespace SpanTools.Generator.Tests
             using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
 
             int actual = sb.LastIndexOf(target.AsSpan(), comparison);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestCaseSource(nameof(LastIndexOfStringWithStartIndexTestData))]
+        [Theory]
+        [MemberData(nameof(LastIndexOfStringWithStartIndexTestData))]
         public void Test_LastIndexOf_String_Int32_StringComparison(string source, string target, int expected, int startIndex, StringComparison comparison, CultureInfo? culture)
         {
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
@@ -273,10 +282,11 @@ namespace SpanTools.Generator.Tests
             using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
 
             int actual = sb.LastIndexOf(target, startIndex, comparison);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [TestCaseSource(nameof(LastIndexOfStringWithStartIndexTestData))]
+        [Theory]
+        [MemberData(nameof(LastIndexOfStringWithStartIndexTestData))]
         public void Test_LastIndexOf_ReadOnlySpan_Int32_StringComparison(string source, string target, int expected, int startIndex, StringComparison comparison, CultureInfo? culture)
         {
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
@@ -285,7 +295,7 @@ namespace SpanTools.Generator.Tests
             using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
 
             int actual = sb.LastIndexOf(target.AsSpan(), startIndex, comparison);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
 #endif

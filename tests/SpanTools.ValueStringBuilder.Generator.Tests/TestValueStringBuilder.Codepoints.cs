@@ -2,18 +2,14 @@
 // found in the LICENSE.txt file or at https://opensource.org/licenses/MIT.
 
 using MyNamespace;
-using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Xunit;
 
 namespace SpanTools.Generator.Tests
 {
     public partial class ValueStringBuilderTests
     {
-        [Test]
+        [Fact]
         public virtual void TestAppendCodePointBmp()
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
@@ -23,10 +19,10 @@ namespace SpanTools.Generator.Tests
 
             sb.AppendCodePoint(codePoint);
 
-            Assert.AreEqual("foo bara", sb.ToString());
+            Assert.Equal("foo bara", sb.ToString());
         }
 
-        [Test]
+        [Fact]
         public virtual void TestAppendCodePointUnicode()
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
@@ -36,10 +32,10 @@ namespace SpanTools.Generator.Tests
 
             sb.AppendCodePoint(codePoint);
 
-            Assert.AreEqual("foo barช", sb.ToString());
+            Assert.Equal("foo barช", sb.ToString());
         }
 
-        [Test]
+        [Fact]
         public virtual void TestAppendCodePointUTF16Surrogates()
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
@@ -49,10 +45,10 @@ namespace SpanTools.Generator.Tests
 
             sb.AppendCodePoint(codePoint);
 
-            Assert.AreEqual("foo bar𫀁", sb.ToString());
+            Assert.Equal("foo bar𫀁", sb.ToString());
         }
 
-        [Test]
+        [Fact]
         public virtual void TestAppendCodePointTooHigh()
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
@@ -70,7 +66,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public virtual void TestAppendCodePointTooLow()
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
@@ -89,7 +85,7 @@ namespace SpanTools.Generator.Tests
         }
 
 
-        [Test]
+        [Fact]
         public void InsertCodePoint_CapacityExceeded_TracksMaxLength()
         {
             var sb = new ValueStringBuilder(stackalloc char[7]);
@@ -101,14 +97,14 @@ namespace SpanTools.Generator.Tests
 
                 sb.InsertCodePoint(0, codePoint);
 
-                Assert.AreEqual("afoo bar", sb.AsSpan().ToString());
-                Assert.IsTrue(sb.CapacityExceeded);
-                Assert.AreEqual(8, sb.Length);
-                Assert.AreEqual(8, sb.MaxLength);
+                Assert.Equal("afoo bar", sb.AsSpan().ToString());
+                Assert.True(sb.CapacityExceeded);
+                Assert.Equal(8, sb.Length);
+                Assert.Equal(8, sb.MaxLength);
 
                 sb.Length = 5;
-                Assert.AreEqual(5, sb.Length);
-                Assert.AreEqual(8, sb.MaxLength);
+                Assert.Equal(5, sb.Length);
+                Assert.Equal(8, sb.MaxLength);
             }
             finally
             {
@@ -116,7 +112,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public virtual void TestInsertCodePointBmp()
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
@@ -126,10 +122,10 @@ namespace SpanTools.Generator.Tests
 
             sb.InsertCodePoint(0, codePoint);
 
-            Assert.AreEqual("afoo bar", sb.ToString());
+            Assert.Equal("afoo bar", sb.ToString());
         }
 
-        [Test]
+        [Fact]
         public virtual void TestInsertCodePointUnicode()
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
@@ -139,10 +135,10 @@ namespace SpanTools.Generator.Tests
 
             sb.InsertCodePoint(1, codePoint);
 
-            Assert.AreEqual("fชoo bar", sb.ToString());
+            Assert.Equal("fชoo bar", sb.ToString());
         }
 
-        [Test]
+        [Fact]
         public virtual void TestInsertCodePointUTF16Surrogates()
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
@@ -152,10 +148,10 @@ namespace SpanTools.Generator.Tests
 
             sb.InsertCodePoint(2, codePoint);
 
-            Assert.AreEqual("fo𫀁o bar", sb.ToString());
+            Assert.Equal("fo𫀁o bar", sb.ToString());
         }
 
-        [Test]
+        [Fact]
         public virtual void TestInsertCodePointTooHigh()
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
@@ -173,7 +169,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public virtual void TestInsertCodePointTooLow()
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);

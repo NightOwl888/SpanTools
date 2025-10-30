@@ -2,20 +2,16 @@
 // found in the LICENSE.txt file or at https://opensource.org/licenses/MIT.
 
 using MyNamespace;
-using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Xunit;
 
 namespace SpanTools.Generator.Tests
 {
     public partial class ValueStringBuilderTests
     {
-        private static readonly object[] LowerCaseTestData =
-        {
+        public static readonly object[] LowerCaseTestData =
+{
             // ASCII
             new object[] { "HELLO", "hello", CultureInfo.InvariantCulture },
             new object[] { "WORLD", "world", new CultureInfo("en-US") },
@@ -33,7 +29,7 @@ namespace SpanTools.Generator.Tests
             new object[] { "Σ", "σ", new CultureInfo("el-GR") },
         };
 
-        private static readonly object[] UpperCaseTestData =
+        public static readonly object[] UpperCaseTestData =
         {
             // ASCII
             new object[] { "hello", "HELLO", CultureInfo.InvariantCulture },
@@ -50,14 +46,14 @@ namespace SpanTools.Generator.Tests
             new object[] { "ὀδυσσεύς", "ὈΔΥΣΣΕΎΣ", new CultureInfo("el-GR") },
         };
 
-        private static readonly object[] InvariantLowerCaseTestData =
+        public static readonly object[] InvariantLowerCaseTestData =
         {
             new object[] { "HELLO", "hello" },
             new object[] { "Straße", "straße" }, // stays same length (ß not expanded in lower)
             new object[] { "İ", "İ" }, // combining dot preserved
         };
 
-        private static readonly object[] InvariantUpperCaseTestData =
+        public static readonly object[] InvariantUpperCaseTestData =
         {
             new object[] { "hello", "HELLO" },
             new object[] { "fußball", "FUßBALL" },
@@ -68,83 +64,91 @@ namespace SpanTools.Generator.Tests
         // AppendLower()
         // ------------------------------
 
-        [TestCaseSource(nameof(LowerCaseTestData))]
+        [Theory]
+        [MemberData(nameof(LowerCaseTestData))]
         public void Test_AppendLower_Span(string input, string expected, CultureInfo culture)
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
             sb.AppendLower(input.AsSpan(), culture);
-            Assert.AreEqual(expected, sb.ToString());
+            Assert.Equal(expected, sb.ToString());
         }
 
-        [TestCaseSource(nameof(LowerCaseTestData))]
+        [Theory]
+        [MemberData(nameof(LowerCaseTestData))]
         public void Test_AppendLower_String(string input, string expected, CultureInfo culture)
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
             sb.AppendLower(input, culture);
-            Assert.AreEqual(expected, sb.ToString());
+            Assert.Equal(expected, sb.ToString());
         }
 
         // ------------------------------
         // AppendUpper()
         // ------------------------------
 
-        [TestCaseSource(nameof(UpperCaseTestData))]
+        [Theory]
+        [MemberData(nameof(UpperCaseTestData))]
         public void Test_AppendUpper_Span(string input, string expected, CultureInfo culture)
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
             sb.AppendUpper(input.AsSpan(), culture);
-            Assert.AreEqual(expected, sb.ToString());
+            Assert.Equal(expected, sb.ToString());
         }
 
-        [TestCaseSource(nameof(UpperCaseTestData))]
+        [Theory]
+        [MemberData(nameof(UpperCaseTestData))]
         public void Test_AppendUpper_String(string input, string expected, CultureInfo culture)
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
             sb.AppendUpper(input, culture);
-            Assert.AreEqual(expected, sb.ToString());
+            Assert.Equal(expected, sb.ToString());
         }
 
         // ------------------------------
         // AppendLowerInvariant()
         // ------------------------------
 
-        [TestCaseSource(nameof(InvariantLowerCaseTestData))]
+        [Theory]
+        [MemberData(nameof(InvariantLowerCaseTestData))]
         public void Test_AppendLowerInvariant_Span(string input, string expected)
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
             sb.AppendLowerInvariant(input.AsSpan());
-            Assert.AreEqual(expected, sb.ToString());
+            Assert.Equal(expected, sb.ToString());
         }
 
-        [TestCaseSource(nameof(InvariantLowerCaseTestData))]
+        [Theory]
+        [MemberData(nameof(InvariantLowerCaseTestData))]
         public void Test_AppendLowerInvariant_String(string input, string expected)
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
             sb.AppendLowerInvariant(input);
-            Assert.AreEqual(expected, sb.ToString());
+            Assert.Equal(expected, sb.ToString());
         }
 
         // ------------------------------
         // AppendUpperInvariant()
         // ------------------------------
 
-        [TestCaseSource(nameof(InvariantUpperCaseTestData))]
+        [Theory]
+        [MemberData(nameof(InvariantUpperCaseTestData))]
         public void Test_AppendUpperInvariant_Span(string input, string expected)
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
             sb.AppendUpperInvariant(input.AsSpan());
-            Assert.AreEqual(expected, sb.ToString());
+            Assert.Equal(expected, sb.ToString());
         }
 
-        [TestCaseSource(nameof(InvariantUpperCaseTestData))]
+        [Theory]
+        [MemberData(nameof(InvariantUpperCaseTestData))]
         public void Test_AppendUpperInvariant_String(string input, string expected)
         {
             using var sb = new ValueStringBuilder(stackalloc char[16]);
             sb.AppendUpperInvariant(input);
-            Assert.AreEqual(expected, sb.ToString());
+            Assert.Equal(expected, sb.ToString());
         }
 
-        [Test]
+        [Fact]
         public void AppendUpper_CapacityExceeded_TracksMaxLength()
         {
             var sb = new ValueStringBuilder(stackalloc char[16]);
@@ -156,16 +160,16 @@ namespace SpanTools.Generator.Tests
                     sb.AppendUpper(s, CultureInfo.InvariantCulture);
                 }
 
-                Assert.AreEqual(2893, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(2893, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
 
                 sb.Length = 0;
-                Assert.AreEqual(0, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(0, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
 
                 sb.Length = 5;
-                Assert.AreEqual(5, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(5, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
             }
             finally
             {
@@ -173,7 +177,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void AppendUpperInvariant_CapacityExceeded_TracksMaxLength()
         {
             var sb = new ValueStringBuilder(stackalloc char[16]);
@@ -185,16 +189,16 @@ namespace SpanTools.Generator.Tests
                     sb.AppendUpperInvariant(s);
                 }
 
-                Assert.AreEqual(2893, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(2893, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
 
                 sb.Length = 0;
-                Assert.AreEqual(0, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(0, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
 
                 sb.Length = 5;
-                Assert.AreEqual(5, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(5, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
             }
             finally
             {
@@ -202,7 +206,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void AppendLower_CapacityExceeded_TracksMaxLength()
         {
             var sb = new ValueStringBuilder(stackalloc char[16]);
@@ -214,16 +218,16 @@ namespace SpanTools.Generator.Tests
                     sb.AppendLower(s, CultureInfo.InvariantCulture);
                 }
 
-                Assert.AreEqual(2893, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(2893, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
 
                 sb.Length = 0;
-                Assert.AreEqual(0, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(0, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
 
                 sb.Length = 5;
-                Assert.AreEqual(5, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(5, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
             }
             finally
             {
@@ -231,7 +235,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void AppendLowerInvariant_CapacityExceeded_TracksMaxLength()
         {
             var sb = new ValueStringBuilder(stackalloc char[16]);
@@ -243,16 +247,16 @@ namespace SpanTools.Generator.Tests
                     sb.AppendLowerInvariant(s);
                 }
 
-                Assert.AreEqual(2893, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(2893, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
 
                 sb.Length = 0;
-                Assert.AreEqual(0, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(0, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
 
                 sb.Length = 5;
-                Assert.AreEqual(5, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(5, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
             }
             finally
             {

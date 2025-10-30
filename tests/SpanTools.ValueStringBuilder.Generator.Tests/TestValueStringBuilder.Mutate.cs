@@ -2,60 +2,56 @@
 // found in the LICENSE.txt file or at https://opensource.org/licenses/MIT.
 
 using MyNamespace;
-using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Xunit;
 
 namespace SpanTools.Generator.Tests
 {
     public partial class ValueStringBuilderTests
     {
-        [Test]
-        [TestCase("", 0, 0, "")]
-        [TestCase("Hello", 0, 5, "")]
-        [TestCase("Hello", 1, 3, "Ho")]
-        [TestCase("Hello", 1, 4, "H")]
-        [TestCase("Hello", 1, 0, "Hello")]
-        [TestCase("Hello", 5, 0, "Hello")]
+        [Theory]
+        [InlineData("", 0, 0, "")]
+        [InlineData("Hello", 0, 5, "")]
+        [InlineData("Hello", 1, 3, "Ho")]
+        [InlineData("Hello", 1, 4, "H")]
+        [InlineData("Hello", 1, 0, "Hello")]
+        [InlineData("Hello", 5, 0, "Hello")]
         public static void Remove(string value, int startIndex, int length, string expected)
         {
             using var builder = new ValueStringBuilder(stackalloc char[64]);
             builder.Append(value);
             builder.Remove(startIndex, length);
-            Assert.AreEqual(expected, builder.ToString());
+            Assert.Equal(expected, builder.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Remove_BeyondCapacity_TracksMaxLength()
         {
             using var sb = new ValueStringBuilder(stackalloc char[5]);
-            Assert.AreEqual(0, sb.Length);
-            Assert.AreEqual(0, sb.MaxLength);
+            Assert.Equal(0, sb.Length);
+            Assert.Equal(0, sb.MaxLength);
 
             sb.Append("012345678");
-            Assert.AreEqual(9, sb.Length);
-            Assert.AreEqual(9, sb.MaxLength);
+            Assert.Equal(9, sb.Length);
+            Assert.Equal(9, sb.MaxLength);
 
             sb.Remove(1, 5);
-            Assert.AreEqual(4, sb.Length);
-            Assert.AreEqual(9, sb.MaxLength);
+            Assert.Equal(4, sb.Length);
+            Assert.Equal(9, sb.MaxLength);
 
             sb.Append("012345678");
-            Assert.AreEqual(13, sb.Length);
-            Assert.AreEqual(13, sb.MaxLength);
+            Assert.Equal(13, sb.Length);
+            Assert.Equal(13, sb.MaxLength);
 
             sb.Remove(3, 9);
-            Assert.AreEqual(4, sb.Length);
-            Assert.AreEqual(13, sb.MaxLength);
+            Assert.Equal(4, sb.Length);
+            Assert.Equal(13, sb.MaxLength);
         }
 
         /**
          * @tests java.lang.StringBuilder.delete(int, int)
          */
-        [Test]
+        [Fact]
         public void Test_DeleteII()
         {
             string fixture = "0123456789";
@@ -64,22 +60,22 @@ namespace SpanTools.Generator.Tests
             {
                 sb.Append(fixture);
                 sb.Delete(0, 0 - 0); // J2N: Corrected 2nd parameter
-                Assert.AreEqual(fixture, sb.AsSpan().ToString());
+                Assert.Equal(fixture, sb.AsSpan().ToString());
                 sb.Delete(5, 5 - 5); // J2N: Corrected 2nd parameter
-                Assert.AreEqual(fixture, sb.AsSpan().ToString());
+                Assert.Equal(fixture, sb.AsSpan().ToString());
                 sb.Delete(0, 1 - 0); // J2N: Corrected 2nd parameter
-                Assert.AreEqual("123456789", sb.AsSpan().ToString());
-                Assert.AreEqual(9, sb.Length);
+                Assert.Equal("123456789", sb.AsSpan().ToString());
+                Assert.Equal(9, sb.Length);
                 sb.Delete(0, sb.Length - 0); // J2N: Corrected 2nd parameter
-                Assert.AreEqual("", sb.AsSpan().ToString());
-                Assert.AreEqual(0, sb.Length);
+                Assert.Equal("", sb.AsSpan().ToString());
+                Assert.Equal(0, sb.Length);
 
                 //sb = new StringBuilder(fixture);
                 sb.Length = 0;
                 sb.Append(fixture);
                 sb.Delete(0, 11 - 0); // J2N: Corrected 2nd parameter
-                Assert.AreEqual("", sb.AsSpan().ToString());
-                Assert.AreEqual(0, sb.Length);
+                Assert.Equal("", sb.AsSpan().ToString());
+                Assert.Equal(0, sb.Length);
 
                 //try
                 //{
@@ -118,8 +114,8 @@ namespace SpanTools.Generator.Tests
                 String str = sb.AsSpan().ToString();
                 sb.Delete(0, sb.Length - 0); // J2N: Corrected 2nd parameter
                 sb.Append("YY");
-                Assert.AreEqual("abcde", str);
-                Assert.AreEqual("YY", sb.AsSpan().ToString());
+                Assert.Equal("abcde", str);
+                Assert.Equal("YY", sb.AsSpan().ToString());
             }
             finally
             {
@@ -136,32 +132,32 @@ namespace SpanTools.Generator.Tests
                 sb.Append(org);
                 sb.Reverse();
                 String reversed = sb.AsSpan().ToString();
-                Assert.AreEqual(rev, reversed);
+                Assert.Equal(rev, reversed);
                 // create non-shared StringBuilder
                 //sb = new ValueStringBuilder(reversed);
                 sb.Length = 0;
                 sb.Append(reversed);
                 sb.Reverse();
                 reversed = sb.AsSpan().ToString();
-                Assert.AreEqual(back, reversed);
+                Assert.Equal(back, reversed);
 
                 // test algorithm when StringBuilder is shared
                 //sb = new StringBuilder(org);
                 sb.Length = 0;
                 sb.Append(org);
                 String copy = sb.AsSpan().ToString();
-                Assert.AreEqual(org, copy);
+                Assert.Equal(org, copy);
                 sb.Reverse();
                 reversed = sb.AsSpan().ToString();
-                Assert.AreEqual(rev, reversed);
+                Assert.Equal(rev, reversed);
                 //sb = new StringBuilder(reversed);
                 sb.Length = 0;
                 sb.Append(reversed);
                 copy = sb.AsSpan().ToString();
-                Assert.AreEqual(rev, copy);
+                Assert.Equal(rev, copy);
                 sb.Reverse();
                 reversed = sb.AsSpan().ToString();
-                Assert.AreEqual(back, reversed);
+                Assert.Equal(back, reversed);
             }
             finally
             {
@@ -172,7 +168,7 @@ namespace SpanTools.Generator.Tests
         /**
          * @tests java.lang.StringBuilder.reverse()
          */
-        [Test]
+        [Fact]
         public void Test_Reverse()
         {
             string fixture = "0123456789";
@@ -181,20 +177,20 @@ namespace SpanTools.Generator.Tests
             {
                 sb.Append(fixture);
                 sb.Reverse();
-                Assert.AreEqual("9876543210", sb.AsSpan().ToString());
+                Assert.Equal("9876543210", sb.AsSpan().ToString());
 
                 sb.Length = 0;
                 sb.Append("012345678");
                 sb.Reverse();
-                Assert.AreEqual("876543210", sb.AsSpan().ToString());
+                Assert.Equal("876543210", sb.AsSpan().ToString());
 
                 sb.Length = (1);
                 sb.Reverse();
-                Assert.AreEqual("8", sb.AsSpan().ToString());
+                Assert.Equal("8", sb.AsSpan().ToString());
 
                 sb.Length = (0);
                 sb.Reverse();
-                Assert.AreEqual("", sb.AsSpan().ToString());
+                Assert.Equal("", sb.AsSpan().ToString());
                 sb.Dispose();
 
                 String str;
@@ -270,7 +266,7 @@ namespace SpanTools.Generator.Tests
         /**
          * @tests java.lang.StringBuilder.replace(int, int, String)'
          */
-        [Test]
+        [Fact]
         public void Test_Replace_String()
         {
             string fixture = "0000";
@@ -280,32 +276,32 @@ namespace SpanTools.Generator.Tests
                 sb.Append(fixture);
                 //Assert.AreSame(sb, sb.Replace(1, 3 - 1, "11")); // J2N; Corrected 2nd parameter
                 sb.Replace(1, 3 - 1, "11"); // J2N; Corrected 2nd parameter
-                Assert.AreEqual("0110", sb.AsSpan().ToString());
-                Assert.AreEqual(4, sb.Length);
+                Assert.Equal("0110", sb.AsSpan().ToString());
+                Assert.Equal(4, sb.Length);
 
                 //sb = new StringBuilder(fixture);
                 sb.Length = 0;
                 sb.Append(fixture);
                 //Assert.AreSame(sb, );
                 sb.Replace(1, 2 - 1, "11"); // J2N; Corrected 2nd parameter
-                Assert.AreEqual("01100", sb.AsSpan().ToString());
-                Assert.AreEqual(5, sb.Length);
+                Assert.Equal("01100", sb.AsSpan().ToString());
+                Assert.Equal(5, sb.Length);
 
                 //sb = new StringBuilder(fixture);
                 sb.Length = 0;
                 sb.Append(fixture);
                 //Assert.AreSame(sb, );
                 sb.Replace(4, 5 - 4, "11"); // J2N; Corrected 2nd parameter
-                Assert.AreEqual("000011", sb.AsSpan().ToString());
-                Assert.AreEqual(6, sb.Length);
+                Assert.Equal("000011", sb.AsSpan().ToString());
+                Assert.Equal(6, sb.Length);
 
                 //sb = new StringBuilder(fixture);
                 sb.Length = 0;
                 sb.Append(fixture);
                 //Assert.AreSame(sb, ); 
                 sb.Replace(4, 6 - 4, "11"); // J2N; Corrected 2nd parameter
-                Assert.AreEqual("000011", sb.AsSpan().ToString());
-                Assert.AreEqual(6, sb.Length);
+                Assert.Equal("000011", sb.AsSpan().ToString());
+                Assert.Equal(6, sb.Length);
 
                 //// FIXME Undocumented NPE in Sun's JRE 5.0_5
                 //try
@@ -366,14 +362,14 @@ namespace SpanTools.Generator.Tests
             using ValueStringBuilder buffer = new ValueStringBuilder(stackalloc char[8]);
             buffer.Append("1234567");
             buffer.Replace(2, 6 - 2, "XXX"); // J2N; Corrected 2nd parameter
-            Assert.AreEqual("12XXX7", buffer.ToString());
+            Assert.Equal("12XXX7", buffer.ToString());
         }
 
 
         /**
          * @tests java.lang.StringBuilder.replace(int, int, String)'
          */
-        [Test]
+        [Fact]
         public void Test_Replace_ReadOnlySpan()
         {
             string fixture = "0000";
@@ -383,29 +379,29 @@ namespace SpanTools.Generator.Tests
                 sb.Append(fixture);
                 //Assert.AreSame(sb, );
                 sb.Replace(1, 3 - 1, "11".AsSpan()); // J2N; Corrected 2nd parameter
-                Assert.AreEqual("0110", sb.AsSpan().ToString());
-                Assert.AreEqual(4, sb.Length);
+                Assert.Equal("0110", sb.AsSpan().ToString());
+                Assert.Equal(4, sb.Length);
 
                 sb.Length = 0;
                 sb.Append(fixture);
                 //Assert.AreSame(sb, );
                 sb.Replace(1, 2 - 1, "11".AsSpan()); // J2N; Corrected 2nd parameter
-                Assert.AreEqual("01100", sb.AsSpan().ToString());
-                Assert.AreEqual(5, sb.Length);
+                Assert.Equal("01100", sb.AsSpan().ToString());
+                Assert.Equal(5, sb.Length);
 
                 sb.Length = 0;
                 sb.Append(fixture);
                 //Assert.AreSame(sb, );
                 sb.Replace(4, 5 - 4, "11".AsSpan()); // J2N; Corrected 2nd parameter
-                Assert.AreEqual("000011", sb.AsSpan().ToString());
-                Assert.AreEqual(6, sb.Length);
+                Assert.Equal("000011", sb.AsSpan().ToString());
+                Assert.Equal(6, sb.Length);
 
                 sb.Length = 0;
                 sb.Append(fixture);
                 //Assert.AreSame(sb, );
                 sb.Replace(4, 6 - 4, "11".AsSpan()); // J2N; Corrected 2nd parameter
-                Assert.AreEqual("000011", sb.AsSpan().ToString());
-                Assert.AreEqual(6, sb.Length);
+                Assert.Equal("000011", sb.AsSpan().ToString());
+                Assert.Equal(6, sb.Length);
 
                 ////// FIXME Undocumented NPE in Sun's JRE 5.0_5
                 ////try
@@ -463,7 +459,7 @@ namespace SpanTools.Generator.Tests
             using ValueStringBuilder buffer = new ValueStringBuilder(stackalloc char[8]);
             buffer.Append("1234567");
             buffer.Replace(2, 6 - 2, "XXX".AsSpan()); // J2N; Corrected 2nd parameter
-            Assert.AreEqual("12XXX7", buffer.AsSpan().ToString());
+            Assert.Equal("12XXX7", buffer.AsSpan().ToString());
         }
     }
 }

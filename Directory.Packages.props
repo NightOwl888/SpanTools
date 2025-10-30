@@ -6,13 +6,15 @@
 
   <PropertyGroup Label="Shared NuGet Package Reference Versions">
     <RoslynAnalyzerPackageVersion>4.14.0</RoslynAnalyzerPackageVersion>
+    <XunitRunnerVisualStudioPackageReferenceVersion>3.1.5</XunitRunnerVisualStudioPackageReferenceVersion>
+    <XunitRunnerVisualStudioPackageReferenceVersion Condition=" '$(TargetFramework)' == 'net47' Or '$(TargetFramework)' == 'net471' Or '$(TargetFramework)' == 'net6.0' ">2.8.2</XunitRunnerVisualStudioPackageReferenceVersion>
   </PropertyGroup>
 
   <ItemGroup Label="NuGet Package Reference Versions">
     <PackageVersion Include="J2N" Version="2.1.0" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.115" />
-    <PackageVersion Include="NUnit" Version="3.14.0" />
-    <PackageVersion Include="NUnit3TestAdapter" Version="5.1.0" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioPackageReferenceVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="$(RoslynAnalyzerPackageVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynAnalyzerPackageVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Features" Version="$(RoslynAnalyzerPackageVersion)" />

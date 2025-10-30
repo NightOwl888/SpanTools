@@ -2,7 +2,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +9,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Xunit;
 
 namespace SpanTools.Generator.Tests
 {
@@ -22,11 +22,11 @@ namespace SpanTools.Generator.Tests
 
         public static void ValidateReferenceType<T>(this Span<T> span, params T[] expected) where T : class
         {
-            Assert.AreEqual(span.Length, expected.Length);
+            Assert.Equal(span.Length, expected.Length);
             for (int i = 0; i < expected.Length; i++)
             {
                 T actual = span[i];
-                Assert.AreSame(expected[i], actual);
+                Assert.Same(expected[i], actual);
             }
 
             T ignore;
@@ -86,11 +86,11 @@ namespace SpanTools.Generator.Tests
 
         public static void ValidateReferenceType<T>(this ReadOnlySpan<T> span, params T[] expected) where T : class
         {
-            Assert.AreEqual(span.Length, expected.Length);
+            Assert.Equal(span.Length, expected.Length);
             for (int i = 0; i < expected.Length; i++)
             {
                 T actual = span[i];
-                Assert.AreSame(expected[i], actual);
+                Assert.Same(expected[i], actual);
             }
 
             T ignore;
@@ -151,11 +151,11 @@ namespace SpanTools.Generator.Tests
         public static void ValidateReferenceType<T>(this Memory<T> memory, params T[] expected) where T : class
         {
             T[] bufferArray = memory.ToArray();
-            Assert.AreEqual(memory.Length, expected.Length);
+            Assert.Equal(memory.Length, expected.Length);
             for (int i = 0; i < expected.Length; i++)
             {
                 T actual = bufferArray[i];
-                Assert.AreSame(expected[i], actual);
+                Assert.Same(expected[i], actual);
             }
         }
 
@@ -167,18 +167,18 @@ namespace SpanTools.Generator.Tests
         public static void ValidateReferenceType<T>(this ReadOnlyMemory<T> memory, params T[] expected) where T : class
         {
             T[] bufferArray = memory.ToArray();
-            Assert.AreEqual(memory.Length, expected.Length);
+            Assert.Equal(memory.Length, expected.Length);
             for (int i = 0; i < expected.Length; i++)
             {
                 T actual = bufferArray[i];
-                Assert.AreSame(expected[i], actual);
+                Assert.Same(expected[i], actual);
             }
         }
 
         public static void Validate<T>(Span<byte> span, T value) where T : struct
         {
             T read = MemoryMarshal.Read<T>(span);
-            Assert.AreEqual(value, read);
+            Assert.Equal(value, read);
             span.Clear();
         }
 

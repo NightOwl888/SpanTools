@@ -3,52 +3,51 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using MyNamespace;
-using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-#nullable enable
+using Xunit;
 
 namespace SpanTools.Generator.Tests
 {
     public partial class ValueStringBuilderTests
     {
-        [Test]
+        [Fact]
         public void Ctor_Default_CanAppend()
         {
             using var vsb = default(ValueStringBuilder);
-            Assert.AreEqual(0, vsb.Length);
+            Assert.Equal(0, vsb.Length);
 
             vsb.Append('a');
-            Assert.AreEqual(1, vsb.Length);
-            Assert.AreEqual("a", vsb.ToString());
+            Assert.Equal(1, vsb.Length);
+            Assert.Equal("a", vsb.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Ctor_Span_CanAppend()
         {
             using var vsb = new ValueStringBuilder(new char[1]);
-            Assert.AreEqual(0, vsb.Length);
+            Assert.Equal(0, vsb.Length);
 
             vsb.Append('a');
-            Assert.AreEqual(1, vsb.Length);
-            Assert.AreEqual("a", vsb.ToString());
+            Assert.Equal(1, vsb.Length);
+            Assert.Equal("a", vsb.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Ctor_InitialCapacity_CanAppend()
         {
             using var vsb = new ValueStringBuilder(1);
-            Assert.AreEqual(0, vsb.Length);
+            Assert.Equal(0, vsb.Length);
 
             vsb.Append('a');
-            Assert.AreEqual(1, vsb.Length);
-            Assert.AreEqual("a", vsb.ToString());
+            Assert.Equal(1, vsb.Length);
+            Assert.Equal("a", vsb.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Append_Char_CapacityExceeded_TracksMaxLength()
         {
             Span<char> output = stackalloc char[5];
@@ -56,20 +55,20 @@ namespace SpanTools.Generator.Tests
             var sb = new ValueStringBuilder(output);
             try
             {
-                Assert.AreEqual(5, sb.Capacity);
+                Assert.Equal(5, sb.Capacity);
                 for (int i = 0; i < 9; i++)
                     sb.Append((char)i);
 
-                Assert.AreEqual(9, sb.Length);
-                Assert.AreEqual(9, sb.MaxLength);
+                Assert.Equal(9, sb.Length);
+                Assert.Equal(9, sb.MaxLength);
 
                 sb.Length = 0;
-                Assert.AreEqual(0, sb.Length);
-                Assert.AreEqual(9, sb.MaxLength);
+                Assert.Equal(0, sb.Length);
+                Assert.Equal(9, sb.MaxLength);
 
                 sb.Length = 5;
-                Assert.AreEqual(5, sb.Length);
-                Assert.AreEqual(9, sb.MaxLength);
+                Assert.Equal(5, sb.Length);
+                Assert.Equal(9, sb.MaxLength);
             }
             finally
             {
@@ -77,7 +76,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void Append_Char_MatchesStringBuilder()
         {
             var sb = new StringBuilder();
@@ -88,11 +87,11 @@ namespace SpanTools.Generator.Tests
                 vsb.Append((char)i);
             }
 
-            Assert.AreEqual(sb.Length, vsb.Length);
-            Assert.AreEqual(sb.ToString(), vsb.ToString());
+            Assert.Equal(sb.Length, vsb.Length);
+            Assert.Equal(sb.ToString(), vsb.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Append_String_MatchesStringBuilder()
         {
             var sb = new StringBuilder();
@@ -104,14 +103,14 @@ namespace SpanTools.Generator.Tests
                 vsb.Append(s);
             }
 
-            Assert.AreEqual(sb.Length, vsb.Length);
-            Assert.AreEqual(sb.ToString(), vsb.ToString());
+            Assert.Equal(sb.Length, vsb.Length);
+            Assert.Equal(sb.ToString(), vsb.ToString());
         }
 
         [Theory]
-        [TestCase(0, 4 * 1024 * 1024)]
-        [TestCase(1025, 4 * 1024 * 1024)]
-        [TestCase(3 * 1024 * 1024, 6 * 1024 * 1024)]
+        [InlineData(0, 4 * 1024 * 1024)]
+        [InlineData(1025, 4 * 1024 * 1024)]
+        [InlineData(3 * 1024 * 1024, 6 * 1024 * 1024)]
         public void Append_String_Large_MatchesStringBuilder(int initialLength, int stringLength)
         {
             var sb = new StringBuilder(initialLength);
@@ -121,44 +120,44 @@ namespace SpanTools.Generator.Tests
             sb.Append(s);
             vsb.Append(s);
 
-            Assert.AreEqual(sb.Length, vsb.Length);
-            Assert.AreEqual(sb.ToString(), vsb.ToString());
+            Assert.Equal(sb.Length, vsb.Length);
+            Assert.Equal(sb.ToString(), vsb.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Append_String_BeyondCapacity_SetsCapacityExceeded()
         {
             using var sb = new ValueStringBuilder(stackalloc char[5]);
-            Assert.IsFalse(sb.CapacityExceeded);
+            Assert.False(sb.CapacityExceeded);
 
             sb.Append("012345678");
-            Assert.IsTrue(sb.CapacityExceeded);
+            Assert.True(sb.CapacityExceeded);
         }
 
-        [Test]
+        [Fact]
         public void Append_String_BeyondCapacity_TracksMaxLength()
         {
             var sb = new ValueStringBuilder(stackalloc char[5]);
             try
             {
-                Assert.AreEqual(0, sb.Length);
-                Assert.AreEqual(0, sb.MaxLength);
+                Assert.Equal(0, sb.Length);
+                Assert.Equal(0, sb.MaxLength);
 
                 sb.Append("012345678");
-                Assert.AreEqual(9, sb.Length);
-                Assert.AreEqual(9, sb.MaxLength);
+                Assert.Equal(9, sb.Length);
+                Assert.Equal(9, sb.MaxLength);
 
                 sb.Length = 4;
-                Assert.AreEqual(4, sb.Length);
-                Assert.AreEqual(9, sb.MaxLength);
+                Assert.Equal(4, sb.Length);
+                Assert.Equal(9, sb.MaxLength);
 
                 sb.Append("012345678");
-                Assert.AreEqual(13, sb.Length);
-                Assert.AreEqual(13, sb.MaxLength);
+                Assert.Equal(13, sb.Length);
+                Assert.Equal(13, sb.MaxLength);
 
                 sb.Length = 4;
-                Assert.AreEqual(4, sb.Length);
-                Assert.AreEqual(13, sb.MaxLength);
+                Assert.Equal(4, sb.Length);
+                Assert.Equal(13, sb.MaxLength);
             }
             finally
             {
@@ -166,7 +165,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void Append_CharInt_MatchesStringBuilder()
         {
             var sb = new StringBuilder();
@@ -177,11 +176,11 @@ namespace SpanTools.Generator.Tests
                 vsb.Append((char)i, i);
             }
 
-            Assert.AreEqual(sb.Length, vsb.Length);
-            Assert.AreEqual(sb.ToString(), vsb.ToString());
+            Assert.Equal(sb.Length, vsb.Length);
+            Assert.Equal(sb.ToString(), vsb.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Append_CharInt_CapacityExeeded_SetsMaxLength()
         {
             var sb = new ValueStringBuilder(stackalloc char[5]);
@@ -192,16 +191,16 @@ namespace SpanTools.Generator.Tests
                     sb.Append((char)i, i);
                 }
 
-                Assert.AreEqual(5050, sb.Length);
-                Assert.AreEqual(5050, sb.MaxLength);
+                Assert.Equal(5050, sb.Length);
+                Assert.Equal(5050, sb.MaxLength);
 
                 sb.Length = 0;
-                Assert.AreEqual(0, sb.Length);
-                Assert.AreEqual(5050, sb.MaxLength);
+                Assert.Equal(0, sb.Length);
+                Assert.Equal(5050, sb.MaxLength);
 
                 sb.Length = 5;
-                Assert.AreEqual(5, sb.Length);
-                Assert.AreEqual(5050, sb.MaxLength);
+                Assert.Equal(5, sb.Length);
+                Assert.Equal(5050, sb.MaxLength);
             }
             finally
             {
@@ -211,7 +210,7 @@ namespace SpanTools.Generator.Tests
 
 #if FEATURE_COMPILE_UNSAFE
 
-        [Test]
+        [Fact]
         public unsafe void Append_PtrInt_MatchesStringBuilder()
         {
             var sb = new StringBuilder();
@@ -226,13 +225,13 @@ namespace SpanTools.Generator.Tests
                 }
             }
 
-            Assert.AreEqual(sb.Length, vsb.Length);
-            Assert.AreEqual(sb.ToString(), vsb.ToString());
+            Assert.Equal(sb.Length, vsb.Length);
+            Assert.Equal(sb.ToString(), vsb.ToString());
         }
 
 #endif
 
-        [Test]
+        [Fact]
         public void AppendSpan_DataAppendedCorrectly()
         {
             var sb = new StringBuilder();
@@ -245,16 +244,16 @@ namespace SpanTools.Generator.Tests
                 sb.Append(s);
 
                 Span<char> span = vsb.AppendSpan(s.Length);
-                Assert.AreEqual(sb.Length, vsb.Length);
+                Assert.Equal(sb.Length, vsb.Length);
 
                 s.AsSpan().CopyTo(span);
             }
 
-            Assert.AreEqual(sb.Length, vsb.Length);
-            Assert.AreEqual(sb.ToString(), vsb.ToString());
+            Assert.Equal(sb.Length, vsb.Length);
+            Assert.Equal(sb.ToString(), vsb.ToString());
         }
 
-        [Test]
+        [Fact]
         public void AppendSpan_CapacityExceeded_TracksMaxLength()
         {
             var sb = new ValueStringBuilder(stackalloc char[128]);
@@ -267,16 +266,16 @@ namespace SpanTools.Generator.Tests
                     s.AsSpan().CopyTo(span);
                 }
 
-                Assert.AreEqual(2893, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(2893, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
 
                 sb.Length = 0;
-                Assert.AreEqual(0, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(0, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
 
                 sb.Length = 5;
-                Assert.AreEqual(5, sb.Length);
-                Assert.AreEqual(2893, sb.MaxLength);
+                Assert.Equal(5, sb.Length);
+                Assert.Equal(2893, sb.MaxLength);
             }
             finally
             {
@@ -284,7 +283,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void Insert_IntCharInt_MatchesStringBuilder()
         {
             var sb = new StringBuilder();
@@ -298,11 +297,11 @@ namespace SpanTools.Generator.Tests
                 vsb.Insert(index, (char)i, i);
             }
 
-            Assert.AreEqual(sb.Length, vsb.Length);
-            Assert.AreEqual(sb.ToString(), vsb.ToString());
+            Assert.Equal(sb.Length, vsb.Length);
+            Assert.Equal(sb.ToString(), vsb.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Insert_IntCharInt_TracksMaxLength()
         {
             var sb = new ValueStringBuilder();
@@ -316,16 +315,16 @@ namespace SpanTools.Generator.Tests
                     sb.Insert(index, (char)i, i);
                 }
 
-                Assert.AreEqual(5050, sb.Length);
-                Assert.AreEqual(5050, sb.MaxLength);
+                Assert.Equal(5050, sb.Length);
+                Assert.Equal(5050, sb.MaxLength);
 
                 sb.Length = 0;
-                Assert.AreEqual(0, sb.Length);
-                Assert.AreEqual(5050, sb.MaxLength);
+                Assert.Equal(0, sb.Length);
+                Assert.Equal(5050, sb.MaxLength);
 
                 sb.Length = 5;
-                Assert.AreEqual(5, sb.Length);
-                Assert.AreEqual(5050, sb.MaxLength);
+                Assert.Equal(5, sb.Length);
+                Assert.Equal(5050, sb.MaxLength);
             }
             finally
             {
@@ -333,7 +332,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        [Test]
+        [Fact]
         public void AsSpan_ReturnsCorrectValue_DoesntClearBuilder()
         {
             var sb = new StringBuilder();
@@ -347,97 +346,97 @@ namespace SpanTools.Generator.Tests
             }
 
             var resultString = new string(vsb.AsSpan());
-            Assert.AreEqual(sb.ToString(), resultString);
+            Assert.Equal(sb.ToString(), resultString);
 
-            Assert.AreNotEqual(0, sb.Length);
-            Assert.AreEqual(sb.Length, vsb.Length);
-            Assert.AreEqual(sb.ToString(), vsb.ToString());
+            Assert.NotEqual(0, sb.Length);
+            Assert.Equal(sb.Length, vsb.Length);
+            Assert.Equal(sb.ToString(), vsb.ToString());
         }
 
         // LUCENENET: Removed Dispose() call so we can safely call ToString() multiple times
-        [Test]
+        [Fact]
         public void ToString_AllowsReuse()
         {
             const string Text1 = "test";
             using var vsb = new ValueStringBuilder();
 
             vsb.Append(Text1);
-            Assert.AreEqual(Text1.Length, vsb.Length);
+            Assert.Equal(Text1.Length, vsb.Length);
 
             string s = vsb.ToString();
-            Assert.AreEqual(Text1, s);
+            Assert.Equal(Text1, s);
 
-            Assert.AreEqual(Text1.Length, vsb.Length);
-            Assert.AreEqual(Text1, vsb.ToString());
+            Assert.Equal(Text1.Length, vsb.Length);
+            Assert.Equal(Text1, vsb.ToString());
             //Assert.True(vsb.TryCopyTo(Span<char>.Empty, out _));
 
             const string Text2 = "another test";
             vsb.Append(Text2);
-            Assert.AreEqual(Text1.Length + Text2.Length, vsb.Length);
-            Assert.AreEqual(Text1 + Text2, vsb.ToString());
+            Assert.Equal(Text1.Length + Text2.Length, vsb.Length);
+            Assert.Equal(Text1 + Text2, vsb.ToString());
         }
 
-        [Test]
+        [Fact]
         public void TryCopyTo_FailsWhenDestinationIsTooSmall_SucceedsWhenItsLargeEnough()
         {
             using var vsb = new ValueStringBuilder();
 
             const string Text = "expected text";
             vsb.Append(Text);
-            Assert.AreEqual(Text.Length, vsb.Length);
+            Assert.Equal(Text.Length, vsb.Length);
 
             Span<char> dst = new char[Text.Length - 1];
             Assert.False(vsb.TryCopyTo(dst, out int charsWritten));
-            Assert.AreEqual(0, charsWritten);
-            Assert.AreEqual(Text.Length, vsb.Length);
+            Assert.Equal(0, charsWritten);
+            Assert.Equal(Text.Length, vsb.Length);
         }
 
-        [Test]
+        [Fact]
         public void TryCopyTo_AllowsReuse()
         {
             const string Text1 = "test";
             using var vsb = new ValueStringBuilder();
 
             vsb.Append(Text1);
-            Assert.AreEqual(Text1.Length, vsb.Length);
+            Assert.Equal(Text1.Length, vsb.Length);
 
             Span<char> dst = new char[Text1.Length];
             Assert.True(vsb.TryCopyTo(dst, out int charsWritten));
-            Assert.AreEqual(Text1.Length, charsWritten);
-            Assert.AreEqual(Text1, new string(dst));
+            Assert.Equal(Text1.Length, charsWritten);
+            Assert.Equal(Text1, new string(dst));
 
-            Assert.AreEqual(Text1.Length, vsb.Length);
-            Assert.AreEqual(Text1, vsb.ToString());
+            Assert.Equal(Text1.Length, vsb.Length);
+            Assert.Equal(Text1, vsb.ToString());
             //Assert.True(vsb.TryCopyTo(Span<char>.Empty, out _));
 
             const string Text2 = "another test";
             vsb.Append(Text2);
-            Assert.AreEqual(Text1.Length + Text2.Length, vsb.Length);
-            Assert.AreEqual(Text1 + Text2, vsb.ToString());
+            Assert.Equal(Text1.Length + Text2.Length, vsb.Length);
+            Assert.Equal(Text1 + Text2, vsb.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Dispose_ClearsBuilder_ThenReusable()
         {
             const string Text1 = "test";
             using var vsb = new ValueStringBuilder();
 
             vsb.Append(Text1);
-            Assert.AreEqual(Text1.Length, vsb.Length);
+            Assert.Equal(Text1.Length, vsb.Length);
 
             vsb.Dispose();
 
-            Assert.AreEqual(0, vsb.Length);
-            Assert.AreEqual(string.Empty, vsb.ToString());
+            Assert.Equal(0, vsb.Length);
+            Assert.Equal(string.Empty, vsb.ToString());
             Assert.True(vsb.TryCopyTo(Span<char>.Empty, out _));
 
             const string Text2 = "another test";
             vsb.Append(Text2);
-            Assert.AreEqual(Text2.Length, vsb.Length);
-            Assert.AreEqual(Text2, vsb.ToString());
+            Assert.Equal(Text2.Length, vsb.Length);
+            Assert.Equal(Text2, vsb.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Indexer()
         {
             const string Text1 = "foobar";
@@ -445,12 +444,12 @@ namespace SpanTools.Generator.Tests
 
             vsb.Append(Text1);
 
-            Assert.AreEqual('b', vsb[3]);
+            Assert.Equal('b', vsb[3]);
             vsb[3] = 'c';
-            Assert.AreEqual('c', vsb[3]);
+            Assert.Equal('c', vsb[3]);
         }
 
-        [Test]
+        [Fact]
         public void EnsureCapacity_IfRequestedCapacityWins()
         {
             // Note: constants used here may be dependent on minimal buffer size
@@ -460,12 +459,12 @@ namespace SpanTools.Generator.Tests
             builder.EnsureCapacity(65, out int newCapacity);
 
             // LUCENENET: We over-allocate compared with the BCL
-            Assert.AreEqual(65, newCapacity);
-            Assert.GreaterOrEqual(builder.Capacity, 128);
-            Assert.IsTrue(builder.CapacityExceeded);
+            Assert.Equal(65, newCapacity);
+            Assert.True(builder.Capacity >= 128, $"Expected capacity >= 128 but was {builder.Capacity}.");
+            Assert.True(builder.CapacityExceeded);
         }
 
-        [Test]
+        [Fact]
         public void EnsureCapacity_IfBufferTimesTwoWins()
         {
             using var builder = new ValueStringBuilder(stackalloc char[32]);
@@ -473,12 +472,12 @@ namespace SpanTools.Generator.Tests
             builder.EnsureCapacity(33, out int newCapacity);
 
             // LUCENENET: We over-allocate compared with the BCL
-            Assert.AreEqual(64, newCapacity);
-            Assert.GreaterOrEqual(builder.Capacity, 64);
-            Assert.IsTrue(builder.CapacityExceeded);
+            Assert.Equal(64, newCapacity);
+            Assert.True(builder.Capacity >= 64, $"Expected capacity >= 64 but was {builder.Capacity}.");
+            Assert.True(builder.CapacityExceeded);
         }
 
-        [Test]
+        [Fact]
         public void EnsureCapacity_NoAllocIfNotNeeded()
         {
             // Note: constants used here may be dependent on minimal buffer size
@@ -487,33 +486,33 @@ namespace SpanTools.Generator.Tests
 
             builder.EnsureCapacity(16);
 
-            Assert.AreEqual(64, builder.Capacity);
+            Assert.Equal(64, builder.Capacity);
         }
 
-        [Test]
+        [Fact]
         public void Length_BeyondCapacity_TracksMaxLength()
         {
             var sb = new ValueStringBuilder(stackalloc char[5]);
             try
             {
-                Assert.AreEqual(0, sb.Length);
-                Assert.AreEqual(0, sb.MaxLength);
+                Assert.Equal(0, sb.Length);
+                Assert.Equal(0, sb.MaxLength);
 
                 sb.Append("012345678");
-                Assert.AreEqual(9, sb.Length);
-                Assert.AreEqual(9, sb.MaxLength);
+                Assert.Equal(9, sb.Length);
+                Assert.Equal(9, sb.MaxLength);
 
                 sb.Length = 4;
-                Assert.AreEqual(4, sb.Length);
-                Assert.AreEqual(9, sb.MaxLength);
+                Assert.Equal(4, sb.Length);
+                Assert.Equal(9, sb.MaxLength);
 
                 sb.Append("012345678");
-                Assert.AreEqual(13, sb.Length);
-                Assert.AreEqual(13, sb.MaxLength);
+                Assert.Equal(13, sb.Length);
+                Assert.Equal(13, sb.MaxLength);
 
                 sb.Length = 4;
-                Assert.AreEqual(4, sb.Length);
-                Assert.AreEqual(13, sb.MaxLength);
+                Assert.Equal(4, sb.Length);
+                Assert.Equal(13, sb.MaxLength);
             }
             finally
             {
@@ -521,15 +520,16 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        [TestCase("Hello", 0, '\0', "\0Hello")]
-        [TestCase("Hello", 3, 'a', "Helalo")]
-        [TestCase("Hello", 5, 'b', "Hellob")]
+        [Theory]
+        [InlineData("Hello", 0, '\0', "\0Hello")]
+        [InlineData("Hello", 3, 'a', "Helalo")]
+        [InlineData("Hello", 5, 'b', "Hellob")]
         public static void Insert_Char(string original, int index, char value, string expected)
         {
             using var builder = new ValueStringBuilder(stackalloc char[original.Length]);
             builder.Append(original);
             builder.Insert(index, value);
-            Assert.AreEqual(expected, builder.ToString());
+            Assert.Equal(expected, builder.ToString());
         }
 
         public static IEnumerable Insert_String_Count_TestData
@@ -547,7 +547,8 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        [TestCaseSource(nameof(Insert_String_Count_TestData))]
+        [Theory]
+        [MemberData(nameof(Insert_String_Count_TestData))]
         public void Insert_String_Count(string original, int index, string value, int count, string expected)
         {
             if (count == 1)
@@ -556,16 +557,17 @@ namespace SpanTools.Generator.Tests
                 using var vsb = new ValueStringBuilder(stackalloc char[original.Length]);
                 vsb.Append(original);
                 vsb.Insert(index, value);
-                Assert.AreEqual(expected, vsb.ToString());
+                Assert.Equal(expected, vsb.ToString());
             }
             // Use Insert(int, string, int)
             using var builder = new ValueStringBuilder(stackalloc char[original.Length]);
             builder.Append(original);
             builder.Insert(index, value, count);
-            Assert.AreEqual(expected, builder.ToString());
+            Assert.Equal(expected, builder.ToString());
         }
 
-        [TestCaseSource(nameof(Insert_String_Count_TestData))]
+        [Theory]
+        [MemberData(nameof(Insert_String_Count_TestData))]
         public void Insert_ReadOnlySpan_Count(string original, int index, string value, int count, string expected)
         {
             if (count == 1)
@@ -574,20 +576,20 @@ namespace SpanTools.Generator.Tests
                 using var vsb = new ValueStringBuilder(stackalloc char[original.Length]);
                 vsb.Append(original);
                 vsb.Insert(index, value.AsSpan());
-                Assert.AreEqual(expected, vsb.ToString());
+                Assert.Equal(expected, vsb.ToString());
             }
             // Use Insert(int, string, int)
             using var builder = new ValueStringBuilder(stackalloc char[original.Length]);
             builder.Append(original);
             builder.Insert(index, value.AsSpan(), count);
-            Assert.AreEqual(expected, builder.ToString());
+            Assert.Equal(expected, builder.ToString());
         }
 
 
         #region AsSpan
 
 
-        [Test]
+        [Fact]
         public static void OpenStringBuilderAsSpanNullary()
         {
             using var s = new ValueStringBuilder(stackalloc char[16]);
@@ -597,7 +599,7 @@ namespace SpanTools.Generator.Tests
             span.Validate(expected);
         }
 
-        [Test]
+        [Fact]
         public static void StringAsSpanEmptyString()
         {
             using var s = new ValueStringBuilder(stackalloc char[16]);
@@ -605,7 +607,8 @@ namespace SpanTools.Generator.Tests
             span.ValidateNonNullEmpty();
         }
 
-        [TestCaseSource(typeof(TestHelpers), nameof(TestHelpers.StringSliceTestData))]
+        [Theory]
+        [MemberData(nameof(TestHelpers.StringSliceTestData), MemberType = typeof(TestHelpers))]
         public static void AsSpan_StartAndLength(string textStr, int start, int length)
         {
             ValueStringBuilder text = new ValueStringBuilder(stackalloc char[16]);
@@ -643,13 +646,13 @@ namespace SpanTools.Generator.Tests
 
             static unsafe void Validate(ref ValueStringBuilder text, int start, int length, ReadOnlySpan<char> span)
             {
-                Assert.AreEqual(length, span.Length);
+                Assert.Equal(length, span.Length);
                 fixed (char* pText = &MemoryMarshal.GetReference(text.RawChars))
                 {
                     // Unsafe.AsPointer is safe here since it's pinned (since text and span should be the same string)
                     char* expected = pText + start;
                     void* actual = Unsafe.AsPointer(ref MemoryMarshal.GetReference(span));
-                    Assert.AreEqual((IntPtr)expected, (IntPtr)actual);
+                    Assert.Equal((IntPtr)expected, (IntPtr)actual);
                 }
             }
         }
@@ -658,45 +661,47 @@ namespace SpanTools.Generator.Tests
 
         #region AsMemory
 
-        [TestCase(0, 0)]
-        [TestCase(3, 0)]
-        [TestCase(3, 1)]
-        [TestCase(3, 2)]
-        [TestCase(3, 3)]
-        [TestCase(10, 0)]
-        [TestCase(10, 3)]
-        [TestCase(10, 10)]
+        [Theory]
+        [InlineData(0, 0)]
+        [InlineData(3, 0)]
+        [InlineData(3, 1)]
+        [InlineData(3, 2)]
+        [InlineData(3, 3)]
+        [InlineData(10, 0)]
+        [InlineData(10, 3)]
+        [InlineData(10, 10)]
         public static void OpenStringBuilderAsMemoryWithStart(int length, int start)
         {
             using ValueStringBuilder a = new ValueStringBuilder(length);
             a.Append('\0', length);
             ReadOnlyMemory<char> m = a.AsMemory(start);
-            Assert.AreEqual(length - start, m.Length);
+            Assert.Equal(length - start, m.Length);
             if (start != length)
             {
                 a[start] = (char)42;
-                Assert.AreEqual(42, m.Span[0]);
+                Assert.Equal(42, m.Span[0]);
             }
         }
 
-        [TestCase(0, 0, 0)]
-        [TestCase(3, 0, 3)]
-        [TestCase(3, 1, 2)]
-        [TestCase(3, 2, 1)]
-        [TestCase(3, 3, 0)]
-        [TestCase(10, 0, 5)]
-        [TestCase(10, 3, 2)]
+        [Theory]
+        [InlineData(0, 0, 0)]
+        [InlineData(3, 0, 3)]
+        [InlineData(3, 1, 2)]
+        [InlineData(3, 2, 1)]
+        [InlineData(3, 3, 0)]
+        [InlineData(10, 0, 5)]
+        [InlineData(10, 3, 2)]
         public static void OpenStringBuilderAsMemoryWithStartAndLength(int length, int start, int subLength)
         {
             using ValueStringBuilder a = new ValueStringBuilder(length);
             a.Append('\0', length);
 
             ReadOnlyMemory<char> m = a.AsMemory(start, subLength);
-            Assert.AreEqual(subLength, m.Length);
+            Assert.Equal(subLength, m.Length);
             if (subLength != 0)
             {
                 a[start] = (char)42;
-                Assert.AreEqual(42, m.Span[0]);
+                Assert.Equal(42, m.Span[0]);
             }
         }
 
