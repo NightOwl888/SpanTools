@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>SpanTools.Generator.Tests</RootNamespace>
     <IsTestProject>true</IsTestProject>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <PropertyGroup Label="ValueStringBuilder Options">
