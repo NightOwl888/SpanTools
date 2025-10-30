@@ -5,7 +5,7 @@
 using MyNamespace;
 using SpanTools.TestUtilities.Xunit;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -539,7 +539,7 @@ namespace SpanTools.Generator.Tests
             Assert.Equal(expected, builder.ToString());
         }
 
-        public static IEnumerable Insert_String_Count_TestData
+        public static IEnumerable<object[]> Insert_String_Count_TestData
         {
             get
             {

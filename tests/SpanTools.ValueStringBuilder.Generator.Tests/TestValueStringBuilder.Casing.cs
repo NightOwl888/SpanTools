@@ -3,6 +3,7 @@
 
 using MyNamespace;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Xunit;
 
@@ -10,8 +11,8 @@ namespace SpanTools.Generator.Tests
 {
     public partial class ValueStringBuilderTests
     {
-        public static readonly object[] LowerCaseTestData =
-{
+        public static readonly IEnumerable<object[]> LowerCaseTestData = new List<object[]>
+        {
             // ASCII
             new object[] { "HELLO", "hello", CultureInfo.InvariantCulture },
             new object[] { "WORLD", "world", new CultureInfo("en-US") },
@@ -29,7 +30,7 @@ namespace SpanTools.Generator.Tests
             new object[] { "Σ", "σ", new CultureInfo("el-GR") },
         };
 
-        public static readonly object[] UpperCaseTestData =
+        public static readonly IEnumerable<object[]> UpperCaseTestData = new List<object[]>
         {
             // ASCII
             new object[] { "hello", "HELLO", CultureInfo.InvariantCulture },
@@ -46,14 +47,14 @@ namespace SpanTools.Generator.Tests
             new object[] { "ὀδυσσεύς", "ὈΔΥΣΣΕΎΣ", new CultureInfo("el-GR") },
         };
 
-        public static readonly object[] InvariantLowerCaseTestData =
+        public static readonly IEnumerable<object[]> InvariantLowerCaseTestData = new List<object[]>
         {
             new object[] { "HELLO", "hello" },
             new object[] { "Straße", "straße" }, // stays same length (ß not expanded in lower)
             new object[] { "İ", "İ" }, // combining dot preserved
         };
 
-        public static readonly object[] InvariantUpperCaseTestData =
+        public static readonly IEnumerable<object[]> InvariantUpperCaseTestData = new List<object[]>
         {
             new object[] { "hello", "HELLO" },
             new object[] { "fußball", "FUßBALL" },

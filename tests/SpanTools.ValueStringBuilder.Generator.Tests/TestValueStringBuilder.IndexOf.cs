@@ -4,7 +4,7 @@
 using J2N.Globalization;
 using MyNamespace;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using Xunit;
 
@@ -15,7 +15,7 @@ namespace SpanTools.Generator.Tests
         private const string SearchForString = "ሄኢቌጕኬ\u124fቖኋዘዻ";
         private const string FixtureString = "ዬ፡ዶጶቝአሄኢቌጕኬ\u124fቖኋዘዻ፡ሆገኅጬሷ\u135cቔቿ፺ዃጫቭዄ";
 
-        public static IEnumerable IndexOfCharTestData
+        public static IEnumerable<object[]> IndexOfCharTestData
         {
             get
             {
@@ -27,7 +27,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        public static IEnumerable IndexOfStringTestData
+        public static IEnumerable<object[]> IndexOfStringTestData
         {
             get
             {
@@ -53,7 +53,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        public static IEnumerable LastIndexOfCharTestData
+        public static IEnumerable<object[]> LastIndexOfCharTestData
         {
             get
             {
@@ -65,7 +65,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        public static IEnumerable LastIndexOfStringTestData
+        public static IEnumerable<object[]> LastIndexOfStringTestData
         {
             get
             {
@@ -92,7 +92,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-        public static IEnumerable LastIndexOfStringWithStartIndexTestData
+        public static IEnumerable<object[]> LastIndexOfStringWithStartIndexTestData
         {
             get
             {
