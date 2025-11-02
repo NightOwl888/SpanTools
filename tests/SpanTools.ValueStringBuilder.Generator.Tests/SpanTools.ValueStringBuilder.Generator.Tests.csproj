@@ -62,7 +62,7 @@
     <Compile Remove="TestPackageNotBuilt.cs" />
   </ItemGroup>
 
-  <Target Name="EnsureNuGetPackageBuilt" BeforeTargets="PrepareForBuild" Condition="'$(DesignTimeBuild)' != 'true'">
+  <Target Name="EnsureNuGetPackageBuilt" BeforeTargets="PrepareForBuild" Condition="'$(DesignTimeBuild)' != 'true' And '$(SkipPackageBuild.ToLower())' != 'true' ">
 
     <Message Importance="high" Text="Running NuGet Package Build..." />
 
@@ -80,7 +80,7 @@
     <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Restore" Properties="Configuration=$(Configuration)" />
   </Target>
 
-  <Target Name="CleanRestorePackagesPath" AfterTargets="Clean" Condition="'$(DesignTimeBuild)' != 'true'">
+  <Target Name="CleanRestorePackagesPath" AfterTargets="Clean" Condition="'$(DesignTimeBuild)' != 'true' And '$(SkipPackageBuild.ToLower())' != 'true' ">
     <ForceDeleteDirectory DirectoryPath="$(_RestorePackagesPath)" />
   </Target>
 

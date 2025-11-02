@@ -180,7 +180,9 @@ jobs:
                       "--results-directory", $resultsDirectory,
                       "--blame-hang-timeout", "10m",
                       "--blame-hang-dump-type", "mini",
-                      "--blame-crash"
+                      "--blame-crash",
+                      "-p:SkipPackageBuild=true",
+                      "-p:GeneratePackageOnBuild=false"
                   )
 
                   if ("${{ matrix.arch }}" -eq 'arm64' -and ($env:RUNNER_OS -eq 'macOS' -or $env:RUNNER_OS -eq 'Linux')) {

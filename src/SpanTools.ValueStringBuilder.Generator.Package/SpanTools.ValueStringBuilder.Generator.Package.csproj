@@ -41,7 +41,7 @@
     <ProjectReference Include="..\SpanTools.ValueStringBuilder.Generator\SpanTools.ValueStringBuilder.Generator.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
-  <Target Name="EnsureDependenciesBuilt" BeforeTargets="PrepareForBuild">
+  <Target Name="EnsureDependenciesBuilt" BeforeTargets="PrepareForBuild" Condition=" '$(SkipPackageBuild.ToLower())' != 'true' ">
     <MSBuild Projects="@(ProjectReference)" Targets="Restore;PrepareForBuild;Build" Properties="Configuration=$(Configuration)" BuildInParallel="false" />
   </Target>
 
@@ -83,7 +83,7 @@
     </PropertyGroup>
   </Target>
 
-  <Target Name="GeneratePackageVersionProps" DependsOnTargets="GetBuildVersion" AfterTargets="BeforeBuild">
+  <Target Name="GeneratePackageVersionProps" DependsOnTargets="GetBuildVersion" AfterTargets="BeforeBuild" Condition=" '$(SkipPackageBuild.ToLower())' != 'true' ">
     <MakeDir Directories="$(PackageOutputPath)" Condition="!Exists('$(PackageOutputPath)')" />
 
     <GenerateVersionProps OutputFile="$(_PackageVersionPropsFile)" Version="$(PackageVersion)" />
