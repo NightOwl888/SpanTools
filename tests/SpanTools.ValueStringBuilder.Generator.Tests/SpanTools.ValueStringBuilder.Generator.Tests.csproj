@@ -7,18 +7,28 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
+  <PropertyGroup Label="Test Matrix">
+    <MatrixId>$(AssemblyName)</MatrixId>
+  </PropertyGroup>
+
+  <ItemGroup Label="Test Matrix">
+    <ValueStringBuilderOption Include="ValueStringBuilder_Namespace" Values="MyNamespace" />
+    <ValueStringBuilderOption Include="ValueStringBuilder_IncludeAsMemoryMethods" Values="true;false" />
+    <ValueStringBuilderOption Include="ValueStringBuilder_IncludeMaxLengthTracking" Values="true;false" />
+  </ItemGroup>
+
   <PropertyGroup Label="ValueStringBuilder Options">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <ValueStringBuilder_IncludeAsMemoryMethods>true</ValueStringBuilder_IncludeAsMemoryMethods>
-    <ValueStringBuilder_IncludeMaxLengthTracking>true</ValueStringBuilder_IncludeMaxLengthTracking>
-    <ValueStringBuilder_Namespace>MyNamespace</ValueStringBuilder_Namespace>
-    <ValueStringBuilder_UseJavaStyleFormatting>true</ValueStringBuilder_UseJavaStyleFormatting>
+    <AllowUnsafeBlocks Condition=" '$(AllowUnsafeBlocks)' == '' ">true</AllowUnsafeBlocks>
+    <ValueStringBuilder_IncludeAsMemoryMethods Condition=" '$(ValueStringBuilder_IncludeAsMemoryMethods)' == '' ">true</ValueStringBuilder_IncludeAsMemoryMethods>
+    <ValueStringBuilder_IncludeMaxLengthTracking Condition=" '$(ValueStringBuilder_IncludeMaxLengthTracking)' == '' ">true</ValueStringBuilder_IncludeMaxLengthTracking>
+    <ValueStringBuilder_Namespace Condition=" '$(ValueStringBuilder_Namespace)' == '' ">MyNamespace</ValueStringBuilder_Namespace>
+    <ValueStringBuilder_UseJavaStyleFormatting Condition=" '$(ValueStringBuilder_UseJavaStyleFormatting)' == '' ">true</ValueStringBuilder_UseJavaStyleFormatting>
   </PropertyGroup>
 
   <ItemGroup Label="ValueStringBuilder Options">
     <PackageReference Include="J2N" VersionOverride="2.2.0-alpha-0026" />
   </ItemGroup>
-
+  
   <PropertyGroup Label="Compilation Options">
     <DefineConstants Condition=" '$(AllowUnsafeBlocks.ToLower())' == 'true' ">$(DefineConstants);FEATURE_COMPILE_UNSAFE</DefineConstants>
     <DefineConstants Condition=" '$(ValueStringBuilder_UseJavaStyleFormatting.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEFORMATTING</DefineConstants>

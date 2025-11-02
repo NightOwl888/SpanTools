@@ -20,7 +20,99 @@
     <Message Text="$(OutputTargetFrameworks)" Importance="high"/>
   </Target>
 
-  <!-- For now, excluding this on Azure DevOps is requried for the scripts to properly insert the version numbers, even though we could use the default Nerbank.GitVersioning setup (in theory) because we are strictly following semver -->
+  <Target Name="GenerateMatrix">
+    <PropertyGroup>
+      <MatrixOutputDir>$(RepositoryRoot)_artifacts\TestMatrix\$(MatrixId)</MatrixOutputDir>
+    </PropertyGroup>
+    <GenerateCartesianMatrix Options="@(ValueStringBuilderOption)"
+                             Excludes="@(ExcludeMatrixCombination)"
+                             OutputDir="$(MatrixOutputDir)"
+                             IDPrefix="$(MatrixId)" />
+
+    <Message Importance="high" Text="Generated test matrix at $(MatrixOutputDir)" />
+  </Target>
+
+  <UsingTask TaskName="GenerateCartesianMatrix" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <IDPrefix ParameterType="System.String" Required="true" />
+      <Options ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <Excludes ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="false" />
+      <OutputDir ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Collections.Generic" />
+      <Using Namespace="System.Linq" />
+      <Using Namespace="System.Security.Cryptography" />
+      <Using Namespace="System.Text" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+          var allOptions = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+          foreach (var opt in Options)
+              allOptions[opt.ItemSpec] = (opt.GetMetadata("Values") ?? "").Split(new[]{';'}, StringSplitOptions.None);
+
+          var excludes = new List<Dictionary<string,string>>();
+          foreach (var ex in Excludes ?? Array.Empty<ITaskItem>())
+          {
+              var dict = ex.MetadataNames.Cast<string>()
+                  .Where(k => !string.Equals(k, "Condition", StringComparison.OrdinalIgnoreCase)
+                           && !string.Equals(k, "Reason", StringComparison.OrdinalIgnoreCase))
+                  .ToDictionary(k => k, k => ex.GetMetadata(k), StringComparer.OrdinalIgnoreCase);
+              excludes.Add(dict);
+          }
+
+          var keys = allOptions.Keys.ToList();
+          var combos = new List<Dictionary<string,string>>();
+          void Recurse(int i, Dictionary<string,string> cur) {
+              if (i == keys.Count) {
+                  // Check exclusions
+                  foreach (var ex in excludes) {
+                      bool match = ex.All(kv => cur.TryGetValue(kv.Key, out var val) && val == kv.Value);
+                      if (match) return;
+                  }
+                  combos.Add(new Dictionary<string,string>(cur));
+                  return;
+              }
+              var key = keys[i];
+              foreach (var val in allOptions[key])
+              {
+                  cur[key] = val;
+                  Recurse(i + 1, cur);
+              }
+          }
+          Recurse(0, new Dictionary<string,string>());
+
+          Directory.CreateDirectory(OutputDir);
+
+          foreach (var combo in combos)
+          {
+              var idRaw = string.Join(";", combo.OrderBy(k => k.Key).Select(kv => $"{kv.Key}={kv.Value}"));
+              string hash;
+              using (var sha1 = System.Security.Cryptography.SHA1.Create())
+              {
+                  var bytes = System.Text.Encoding.UTF8.GetBytes(idRaw);
+                  var hashBytes = sha1.ComputeHash(bytes);
+                  hash = BitConverter.ToString(hashBytes).Replace("-", "").Substring(0, 8);
+              }
+              var id = $"{IDPrefix}_{hash}";
+              var file = Path.Combine(OutputDir, $"{id}.props");
+
+              using var writer = new StreamWriter(file);
+              writer.WriteLine("<Project>");
+              writer.WriteLine("  <PropertyGroup>");
+              foreach (var kv in combo)
+                  writer.WriteLine($"    <{kv.Key}>{kv.Value}</{kv.Key}>");
+              writer.WriteLine($"    <MatrixId>{id}</MatrixId>");
+              writer.WriteLine("  </PropertyGroup>");
+              writer.WriteLine("</Project>");
+          }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <!-- For now, excluding this on Azure DevOps is required for the scripts to properly insert the version numbers, even though we could use the default Nerbank.GitVersioning setup (in theory) because we are strictly following semver -->
   <ItemGroup Condition=" '$(SkipGitVersioning.ToLower())' != 'true' ">
     <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="All" />
   </ItemGroup>
