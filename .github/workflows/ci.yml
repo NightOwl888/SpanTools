@@ -166,7 +166,7 @@ jobs:
               $segments = $_.BaseName -split '\.'
               if ($segments -contains 'Tests') {
                   $projFile = $_.FullName
-                  $resultsDirectory = Join-Path $env:TEST_RESULTS_ROOT_DIR $_.Name
+                  $resultsDirectory = Join-Path $env:TEST_RESULTS_ROOT_DIR $_.BaseName
                   New-Item -ItemType Directory -Force -Path $resultsDirectory | Out-Null
 
                   Write-Host "Running tests in $projFile..."
@@ -208,7 +208,7 @@ jobs:
                   $trxFile = Join-Path $resultsDirectory "TestResults.trx"
                   if (Test-Path $trxFile) {
                       $parsed = & "$env:GITHUB_WORKSPACE/eng/build/Parse-Test-Results.ps1" -Path $trxFile
-                      $parsed | Add-Member -NotePropertyName "SuiteName" -NotePropertyValue $_.Name
+                      $parsed | Add-Member -NotePropertyName "SuiteName" -NotePropertyValue $_.BaseName
                       $results += $parsed
                   }
               }
