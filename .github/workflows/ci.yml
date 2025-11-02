@@ -204,23 +204,23 @@ jobs:
                           "-p:ImportPropsFile=$file.FullName"
                       )
 
-                      if ("${{ matrix.arch }}" -eq 'arm64' -and ($env:RUNNER_OS -eq 'macOS' -or $env:RUNNER_OS -eq 'Linux')) {
+                      #if ("${{ matrix.arch }}" -eq 'arm64' -and ($env:RUNNER_OS -eq 'macOS' -or $env:RUNNER_OS -eq 'Linux')) {
                           # Run tests without coverage
                           dotnet @testCmd -- RunConfiguration.TargetPlatform=${{ matrix.arch }}
-                      } else {
-                          # Ensure a coverage folder per test project output
-                          $coverageDir = Join-Path $matrixResultsDirectory "coverage"
-                          New-Item -ItemType Directory -Force -Path $coverageDir | Out-Null
-                          $coverageFile = Join-Path $coverageDir "coverage.xml"
+                      # } else {
+                      #     # Ensure a coverage folder per test project output
+                      #     $coverageDir = Join-Path $matrixResultsDirectory "coverage"
+                      #     New-Item -ItemType Directory -Force -Path $coverageDir | Out-Null
+                      #     $coverageFile = Join-Path $coverageDir "coverage.xml"
 
-                          # Collect coverage in Cobertura format; TRX is produced by the inner 'dotnet test'
-                          dotnet-coverage collect "dotnet $($testCmd -join ' ') -- RunConfiguration.TargetPlatform=${{ matrix.arch }}" `
-                              --output-format cobertura `
-                              --output "$coverageFile" `
-                              --settings (Join-Path "$env:GITHUB_WORKSPACE" 'eng' 'build' 'coverage.runsettings')
+                      #     # Collect coverage in Cobertura format; TRX is produced by the inner 'dotnet test'
+                      #     dotnet-coverage collect "dotnet $($testCmd -join ' ') -- RunConfiguration.TargetPlatform=${{ matrix.arch }}" `
+                      #         --output-format cobertura `
+                      #         --output "$coverageFile" `
+                      #         --settings (Join-Path "$env:GITHUB_WORKSPACE" 'eng' 'build' 'coverage.runsettings')
 
-                          if (Test-Path $coverageFile) { $includesCoverage = $true }
-                      }
+                      #     if (Test-Path $coverageFile) { $includesCoverage = $true }
+                      # }
 
                       # TRX inspection / status computation
                       $trxFile = Join-Path $matrixResultsDirectory "TestResults.trx"
@@ -240,25 +240,25 @@ jobs:
           # Write summary
           Format-Test-Results $results | Add-Content $env:GITHUB_STEP_SUMMARY
 
-          if ($includesCoverage) {
-              # Generate a per-job coverage summary + HTML reports from all coverage.xml files created above
-              $reportsGlob = Join-Path $env:TEST_RESULTS_ROOT_DIR "**/coverage/coverage.xml"
-              reportgenerator `
-                  "-reports:$reportsGlob" `
-                  "-targetdir:$env:COVERAGE_REPORT_DIR" `
-                  "-reporttypes:MarkdownSummaryGithub;HtmlInline_AzurePipelines;HtmlChart" `
-                  "-verbosity:Warning"
+          # if ($includesCoverage) {
+          #     # Generate a per-job coverage summary + HTML reports from all coverage.xml files created above
+          #     $reportsGlob = Join-Path $env:TEST_RESULTS_ROOT_DIR "**/coverage/coverage.xml"
+          #     reportgenerator `
+          #         "-reports:$reportsGlob" `
+          #         "-targetdir:$env:COVERAGE_REPORT_DIR" `
+          #         "-reporttypes:MarkdownSummaryGithub;HtmlInline_AzurePipelines;HtmlChart" `
+          #         "-verbosity:Warning"
 
-              # Append collapsible coverage section to the job summary
-              $md = Join-Path $env:COVERAGE_REPORT_DIR "SummaryGithub.md"
-              if (Test-Path $md) {
-                  Add-Content $env:GITHUB_STEP_SUMMARY "`n<details><summary>Coverage</summary>`n"
-                  Get-Content $md | Add-Content $env:GITHUB_STEP_SUMMARY
-                  Add-Content $env:GITHUB_STEP_SUMMARY "`n</details>`n"
-              } else {
-                  Write-Host "Coverage summary not generated (no coverage.xml found)."
-              }
-          }
+          #     # Append collapsible coverage section to the job summary
+          #     $md = Join-Path $env:COVERAGE_REPORT_DIR "SummaryGithub.md"
+          #     if (Test-Path $md) {
+          #         Add-Content $env:GITHUB_STEP_SUMMARY "`n<details><summary>Coverage</summary>`n"
+          #         Get-Content $md | Add-Content $env:GITHUB_STEP_SUMMARY
+          #         Add-Content $env:GITHUB_STEP_SUMMARY "`n</details>`n"
+          #     } else {
+          #         Write-Host "Coverage summary not generated (no coverage.xml found)."
+          #     }
+          # }
 
           # Report test failure
           if ($results | Where-Object { $_.FailedCount -gt 0 -or $_.Crashed }) {
@@ -279,53 +279,53 @@ jobs:
           name: test-matrix-${{ matrix.os }}-${{ matrix.arch }}
           path: _artifacts/TestMatrix
 
-  coverage:
-    name: aggregate-coverage
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download all test result artifacts
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
-        with:
-          pattern: test-results-*
-          path: all-results
-          merge-multiple: true
+  # coverage:
+  #   name: aggregate-coverage
+  #   needs: test
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download all test result artifacts
+  #       uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+  #       with:
+  #         pattern: test-results-*
+  #         path: all-results
+  #         merge-multiple: true
 
-      # Required for ReportGenerator
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
-        with:
-          dotnet-version: 8.0.x
+  #     # Required for ReportGenerator
+  #     - name: Setup .NET SDK
+  #       uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5
+  #       with:
+  #         dotnet-version: 8.0.x
 
-      - name: Install ReportGenerator
-        shell: pwsh
-        run: |
-          dotnet tool install --global dotnet-reportgenerator-globaltool
-          Add-Content $env:GITHUB_PATH "`n$HOME/.dotnet/tools"
+  #     - name: Install ReportGenerator
+  #       shell: pwsh
+  #       run: |
+  #         dotnet tool install --global dotnet-reportgenerator-globaltool
+  #         Add-Content $env:GITHUB_PATH "`n$HOME/.dotnet/tools"
 
-      - name: Build Aggregate Report
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force -Path "coverage/aggregate" | Out-Null
-          reportgenerator `
-              "-reports:all-results/**/coverage/coverage.xml" `
-              "-targetdir:coverage/aggregate" `
-              "-reporttypes:MarkdownSummaryGithub;HtmlInline_AzurePipelines;HtmlChart" `
-              "-verbosity:Warning"
+  #     - name: Build Aggregate Report
+  #       shell: pwsh
+  #       run: |
+  #         New-Item -ItemType Directory -Force -Path "coverage/aggregate" | Out-Null
+  #         reportgenerator `
+  #             "-reports:all-results/**/coverage/coverage.xml" `
+  #             "-targetdir:coverage/aggregate" `
+  #             "-reporttypes:MarkdownSummaryGithub;HtmlInline_AzurePipelines;HtmlChart" `
+  #             "-verbosity:Warning"
 
-          $md = "coverage/aggregate/SummaryGithub.md"
-          if (Test-Path $md) {
-              Add-Content $env:GITHUB_STEP_SUMMARY "## Aggregate Coverage`n"
-              Get-Content $md | Add-Content $env:GITHUB_STEP_SUMMARY
-          } else {
-              Add-Content $env:GITHUB_STEP_SUMMARY "## Aggregate Coverage`n_No coverage files found._"
-          }
+  #         $md = "coverage/aggregate/SummaryGithub.md"
+  #         if (Test-Path $md) {
+  #             Add-Content $env:GITHUB_STEP_SUMMARY "## Aggregate Coverage`n"
+  #             Get-Content $md | Add-Content $env:GITHUB_STEP_SUMMARY
+  #         } else {
+  #             Add-Content $env:GITHUB_STEP_SUMMARY "## Aggregate Coverage`n_No coverage files found._"
+  #         }
 
-      - name: Upload Aggregate Coverage HTML
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: coverage-aggregate-html
-          path: coverage/aggregate
+  #     - name: Upload Aggregate Coverage HTML
+  #       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+  #       with:
+  #         name: coverage-aggregate-html
+  #         path: coverage/aggregate
 
   release:
     name: release
