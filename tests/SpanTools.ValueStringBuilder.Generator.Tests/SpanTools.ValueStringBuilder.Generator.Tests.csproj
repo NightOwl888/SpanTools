@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <PropertyGroup Label="ValueStringBuilder Options">
-    <AllowUnsafeBlocks Condition=" '$(AllowUnsafeBlocks)' == '' ">true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ValueStringBuilder_IncludeAsMemoryMethods Condition=" '$(ValueStringBuilder_IncludeAsMemoryMethods)' == '' ">true</ValueStringBuilder_IncludeAsMemoryMethods>
     <ValueStringBuilder_IncludeMaxLengthTracking Condition=" '$(ValueStringBuilder_IncludeMaxLengthTracking)' == '' ">true</ValueStringBuilder_IncludeMaxLengthTracking>
     <ValueStringBuilder_Namespace Condition=" '$(ValueStringBuilder_Namespace)' == '' ">MyNamespace</ValueStringBuilder_Namespace>
