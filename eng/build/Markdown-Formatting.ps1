@@ -71,11 +71,13 @@ function Format-Test-Results {
 
                 [void]$sb.AppendLine("  <details>")
                 [void]$sb.AppendLine("  <summary>$summary (click to expand)</summary>")
-                [void]$sb.AppendLine('  <div style="margin-left: 20px; margin-top: 6px; margin-bottom: 6px;">')
-                [void]$sb.AppendLine('  <table>')
-                [void]$sb.AppendLine('    <thead><tr><th>Option</th><th>Value</th></tr></thead>')
-                [void]$sb.AppendLine('    <tbody>')
+                [void]$sb.AppendLine("<br/>")  # <-- ensures spacing between summary and table
 
+                # Indent visually and add some padding around table cells.
+                [void]$sb.AppendLine('  <div style="margin-left: 16px;">')
+                [void]$sb.AppendLine('  <table cellpadding="4" style="border-collapse: collapse;">')
+                [void]$sb.AppendLine('    <thead><tr><th align="left">Option</th><th align="left">Value</th></tr></thead>')
+                [void]$sb.AppendLine('    <tbody>')
 
                 # gather keys in stable order depending on Options type
                 $keys = @()
@@ -100,6 +102,7 @@ function Format-Test-Results {
                 [void]$sb.AppendLine('    </tbody>')
                 [void]$sb.AppendLine('  </table>')
                 [void]$sb.AppendLine('  </div>')
+                [void]$sb.AppendLine("<br/>")  # <-- adds space after table
                 [void]$sb.AppendLine("  </details>")
                 [void]$sb.AppendLine()
             } else {
