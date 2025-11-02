@@ -9,68 +9,9 @@
     summarizing the results. Each test suite is displayed with an icon,
     status text, and counts of passed, failed, and ignored tests.
 
-    By default, the output includes a "## Test Results" heading and a bullet
-    point for each suite.
-
-.PARAMETER Results
-    One or more PSCustomObjects representing test results. Each object should
-    include the following properties:
-      - SuiteName    [string]
-      - PassedCount  [int]
-      - FailedCount  [int]
-      - IgnoredCount [int]
-      - Crashed      [bool]
-
-    This parameter is mandatory and accepts input from the pipeline.
-
-.PARAMETER IconPassed
-    The icon to display for suites where all tests passed (default: ✅).
-
-.PARAMETER TextPassed
-    The label to display for passing suites (default: "Passed").
-
-.PARAMETER IconFailed
-    The icon to display for suites with at least one failed test (default: ❌).
-
-.PARAMETER TextFailed
-    The label to display for failing suites (default: "Failed").
-
-.PARAMETER IconCrashed
-    The icon to display for suites that crashed (default: ⚠️).
-
-.PARAMETER TextCrashed
-    The label to display for crashed suites (default: "Crashed").
-
-.EXAMPLE
-    $results = @(
-        [pscustomobject]@{ SuiteName = "UnitTests"; PassedCount=10; FailedCount=0; IgnoredCount=0; Crashed=$false },
-        [pscustomobject]@{ SuiteName = "IntegrationTests"; PassedCount=8; FailedCount=2; IgnoredCount=1; Crashed=$false },
-        [pscustomobject]@{ SuiteName = "UITests"; PassedCount=0; FailedCount=0; IgnoredCount=0; Crashed=$true }
-    )
-
-    $results | Format-Test-Results
-
-    Produces output similar to:
-
-    ## Test Results
-
-    - ✅ Passed - **UnitTests** | Passed=10, Failed=0, Ignored=0
-    - ❌ Failed - **IntegrationTests** | Passed=8, Failed=2, Ignored=1
-    - ⚠️ Crashed - **UITests** | Passed=0, Failed=0, Ignored=0
-
-.EXAMPLE
-    $results | Format-Test-Results -IconFailed "💥" -TextFailed "Broken"
-
-    Overrides the failed suite indicator with a custom icon and text.
-
-.OUTPUTS
-    System.String
-    Returns a Markdown-formatted string suitable for console output,
-    saving to a file, or inclusion in CI/CD summaries (e.g., GitHub Actions).
-
-.NOTES
-    The Markdown output is designed for human-readable summaries,
-    not for machine parsing.
+    When a result object includes an 'Options' property (a hashtable produced
+    from the test matrix .props), the function will append an expandable
+    details block showing the options as a two-column Markdown table.
 #>
 
 function Format-Test-Results {
@@ -97,6 +38,16 @@ function Format-Test-Results {
     }
 
     process {
+        # helper to make an option value safe for markdown tables:
+        function Escape-For-MarkdownTable([string]$s) {
+            if ($null -eq $s) { return '' }
+            # escape pipe using html entity and replace CR/LF with <br/>
+            $out = $s -replace '\|','&#124;'
+            $out = $out -replace "`r`n","<br/>"
+            $out = $out -replace "`n","<br/>"
+            return $out
+        }
+
         foreach ($r in $Results) {
             if ($r.Crashed) {
                 $statusIcon = $IconCrashed
@@ -111,10 +62,47 @@ function Format-Test-Results {
                 $statusText = $TextPassed
             }
 
-            $line = "- $statusIcon $statusText - **$($r.SuiteName)** " +
+            # Basic one-line summary
+            $summary = "$statusIcon $statusText - **$($r.SuiteName)** " +
                     "| Passed=$($r.PassedCount), Failed=$($r.FailedCount), Ignored=$($r.IgnoredCount)"
 
-            [void]$sb.AppendLine($line)
+            if ($null -eq $r.Options) {
+                [void]$sb.Append("- ")
+                [void]$sb.AppendLine($summary)
+            } else {
+                # If Options exist, render an expandable block with a small two-column table
+
+                [void]$sb.AppendLine("  <details>")
+                [void]$sb.AppendLine("  <summary>$summary (click to expand)</summary>")
+                [void]$sb.AppendLine()
+                [void]$sb.AppendLine("  | Option | Value |")
+                [void]$sb.AppendLine("  |--------|-------|")
+
+                # gather keys in stable order depending on Options type
+                $keys = @()
+                try {
+                    $keys = $r.Options.Keys | Sort-Object
+                } catch {
+                    # if Options isn't dictionary-like, fallback to PSObject properties
+                    $keys = $r.Options.PSObject.Properties.Name | Sort-Object
+                }
+
+                foreach ($k in $keys) {
+                    $v = $null
+                    try { $v = $r.Options[$k] } catch { $v = $r.Options.$k }
+                    $ke = Escape-For-MarkdownTable([string]$k)
+                    $ve = Escape-For-MarkdownTable([string]$v)
+
+                    # Skip the MatrixID, since it is not an option
+                    if ($ke -ne 'MatrixId') {
+                        [void]$sb.AppendLine("  | $ke | $ve |")
+                    }
+                }
+
+                [void]$sb.AppendLine()
+                [void]$sb.AppendLine("  </details>")
+                [void]$sb.AppendLine()
+            }
         }
     }
 

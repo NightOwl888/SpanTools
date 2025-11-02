@@ -58,4 +58,43 @@ Describe "Format-Test-Results" {
             $output | Should -Match "ZZ MeFailed"
         }
     }
+
+    Context "matrix Options formatting" {
+
+        It "includes options block when Options present" {
+            $options = @{ MatrixId = 'MX_1234ABCD'; Foo='Bar'; Baz='Qux' }
+            $obj = [PSCustomObject]@{
+                SuiteName    = 'MatrixRun'
+                PassedCount  = 2
+                FailedCount  = 0
+                IgnoredCount = 0
+                Crashed      = $false
+                Options      = $options
+            }
+
+            $output = Format-Test-Results $obj
+            # details block + matrix summary
+            $output | Should -Match '<details>'
+            $output | Should -Match "\*\*MatrixRun\*\*"
+        }
+
+        It "renders option rows and escapes pipes" {
+            $options = @{ MatrixId='MX_ABC'; Value1='one'; ValueWithPipe='a|b' }
+            $obj = [PSCustomObject]@{
+                SuiteName='MatrixRun2'
+                PassedCount=0
+                FailedCount=1
+                IgnoredCount=0
+                Crashed=$false
+                Options=$options
+            }
+
+            $output = Format-Test-Results $obj
+
+            # Check that option keys and values appear in table rows
+            $output | Should -Match '\|\s*Value1\s*\|\s*one\s*\|'
+            # the pipe character in the value should be escaped as '&#124;'
+            $output | Should -Match '\|\s*ValueWithPipe\s*\|\s*a&#124;b\s*\|'
+        }
+    }
 }
