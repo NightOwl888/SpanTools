@@ -175,6 +175,7 @@ jobs:
                   $testCmd = @(
                       "test", "$projFile",
                       "--framework", "${{ matrix.tfm }}",
+                      "--configuration", "Release",
                       "--logger:console;verbosity=normal",
                       "--logger:trx;LogFileName=TestResults.trx",
                       "--results-directory", $resultsDirectory,
