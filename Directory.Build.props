@@ -70,4 +70,6 @@
     <SkipGitVersioning>true</SkipGitVersioning>
   </PropertyGroup>
 
+  <Import Project="$(ImportPropsFile)" Condition="'$(ImportPropsFile)' != '' And Exists('$(ImportPropsFile)')" />
+
 </Project>
