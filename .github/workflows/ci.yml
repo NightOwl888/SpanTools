@@ -169,47 +169,70 @@ jobs:
                   $resultsDirectory = Join-Path $env:TEST_RESULTS_ROOT_DIR $_.BaseName
                   New-Item -ItemType Directory -Force -Path $resultsDirectory | Out-Null
 
-                  Write-Host "Running tests in $projFile..."
+                  Write-Host "Generating matrix in $projFile..."
 
-                  # Build as array of arguments (excluding the "dotnet" prefix and -- arguments)
-                  $testCmd = @(
-                      "test", "$projFile",
-                      "--framework", "${{ matrix.tfm }}",
-                      "--configuration", "Release",
-                      "--logger:console;verbosity=normal",
-                      "--logger:trx;LogFileName=TestResults.trx",
-                      "--results-directory", $resultsDirectory,
-                      "--blame-hang-timeout", "10m",
-                      "--blame-hang-dump-type", "mini",
-                      "--blame-crash",
-                      "-p:SkipPackageBuild=true",
-                      "-p:GeneratePackageOnBuild=false"
-                  )
+                  & dotnet msbuild "$projFile" -target:GenerateMatrix -p:Configuration=Release
 
-                  if ("${{ matrix.arch }}" -eq 'arm64' -and ($env:RUNNER_OS -eq 'macOS' -or $env:RUNNER_OS -eq 'Linux')) {
-                      # Run tests without coverage
-                      dotnet @testCmd -- RunConfiguration.TargetPlatform=${{ matrix.arch }}
-                  } else {
-                      # Ensure a coverage folder per test project output
-                      $coverageDir = Join-Path $resultsDirectory "coverage"
-                      New-Item -ItemType Directory -Force -Path $coverageDir | Out-Null
-                      $coverageFile = Join-Path $coverageDir "coverage.xml"
+                  $matrixDir = Join-Path $env:GITHUB_WORKSPACE "_artifacts/TestMatrix/$($_.BaseName)"
+                  $matrixFiles = Get-ChildItem -Path $matrixDir -Filter '*.props'
+                  foreach ($file in $matrixFiles) {
+                      [xml]$xml = Get-Content $file.FullName
+                      $props = @{}
+                      foreach ($prop in $xml.Project.PropertyGroup.ChildNodes) {
+                          $props[$prop.Name] = $prop.InnerText
+                      }
 
-                      # Collect coverage in Cobertura format; TRX is produced by the inner 'dotnet test'
-                      dotnet-coverage collect "dotnet $($testCmd -join ' ') -- RunConfiguration.TargetPlatform=${{ matrix.arch }}" `
-                          --output-format cobertura `
-                          --output "$coverageFile" `
-                          --settings (Join-Path "$env:GITHUB_WORKSPACE" 'eng' 'build' 'coverage.runsettings')
+                      $matrixId = $props['MatrixId']
+                      $matrixResultsDirectory = Join-Path $resultsDirectory $matrixId
+                      New-Item -ItemType Directory -Force -Path $matrixResultsDirectory | Out-Null
 
-                      if (Test-Path $coverageFile) { $includesCoverage = $true }
-                  }
+                      Write-Host "Running tests for $matrixId..."
 
-                  # TRX inspection / status computation
-                  $trxFile = Join-Path $resultsDirectory "TestResults.trx"
-                  if (Test-Path $trxFile) {
-                      $parsed = & "$env:GITHUB_WORKSPACE/eng/build/Parse-Test-Results.ps1" -Path $trxFile
-                      $parsed | Add-Member -NotePropertyName "SuiteName" -NotePropertyValue $_.BaseName
-                      $results += $parsed
+                      # Build as array of arguments (excluding the "dotnet" prefix and -- arguments)
+                      $testCmd = @(
+                          "test", "$projFile",
+                          "--framework", "${{ matrix.tfm }}",
+                          "--configuration", "Release",
+                          "--logger:console;verbosity=normal",
+                          "--logger:trx;LogFileName=TestResults.trx",
+                          "--results-directory", $matrixResultsDirectory,
+                          "--blame-hang-timeout", "10m",
+                          "--blame-hang-dump-type", "mini",
+                          "--blame-crash",
+                          "-p:SkipPackageBuild=true",
+                          "-p:GeneratePackageOnBuild=false",
+                          "-p:ImportPropsFile=$file.FullName"
+                      )
+
+                      if ("${{ matrix.arch }}" -eq 'arm64' -and ($env:RUNNER_OS -eq 'macOS' -or $env:RUNNER_OS -eq 'Linux')) {
+                          # Run tests without coverage
+                          dotnet @testCmd -- RunConfiguration.TargetPlatform=${{ matrix.arch }}
+                      } else {
+                          # Ensure a coverage folder per test project output
+                          $coverageDir = Join-Path $matrixResultsDirectory "coverage"
+                          New-Item -ItemType Directory -Force -Path $coverageDir | Out-Null
+                          $coverageFile = Join-Path $coverageDir "coverage.xml"
+
+                          # Collect coverage in Cobertura format; TRX is produced by the inner 'dotnet test'
+                          dotnet-coverage collect "dotnet $($testCmd -join ' ') -- RunConfiguration.TargetPlatform=${{ matrix.arch }}" `
+                              --output-format cobertura `
+                              --output "$coverageFile" `
+                              --settings (Join-Path "$env:GITHUB_WORKSPACE" 'eng' 'build' 'coverage.runsettings')
+
+                          if (Test-Path $coverageFile) { $includesCoverage = $true }
+                      }
+
+                      # TRX inspection / status computation
+                      $trxFile = Join-Path $matrixResultsDirectory "TestResults.trx"
+                      if (Test-Path $trxFile) {
+                          $parsed = & "$env:GITHUB_WORKSPACE/eng/build/Parse-Test-Results.ps1" -Path $trxFile
+
+                          # Attach the matrix ID and the full property set that produced this run
+                          $parsed | Add-Member -NotePropertyName "SuiteName" -NotePropertyValue $matrixId -Force
+                          $parsed | Add-Member -NotePropertyName "Options" -NotePropertyValue $props -Force
+
+                          $results += $parsed
+                      }
                   }
               }
           }
@@ -248,6 +271,13 @@ jobs:
         with:
           name: test-results-${{ matrix.os }}-${{ matrix.arch }}
           path: ${{ env.TEST_RESULTS_ROOT_DIR }}
+
+      - name: Upload Test Matrix
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: test-matrix-${{ matrix.os }}-${{ matrix.arch }}
+          path: _artifacts/TestMatrix
 
   coverage:
     name: aggregate-coverage
