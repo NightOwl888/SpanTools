@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Shared NuGet Package Reference Versions">
-    <RoslynAnalyzerPackageVersion>4.14.0</RoslynAnalyzerPackageVersion>
+    <!-- NOTE: We must target the lowest practical version in order to support older SDKs. 4.6.0 should be low enough to support .NET 6 SDKs.
+        Newer SDKs will upgrade this reference automatically. -->
+    <RoslynAnalyzerPackageVersion>4.6.0</RoslynAnalyzerPackageVersion>
     <XunitRunnerVisualStudioPackageReferenceVersion>3.1.5</XunitRunnerVisualStudioPackageReferenceVersion>
     <XunitRunnerVisualStudioPackageReferenceVersion Condition=" '$(TargetFramework)' == 'net47' Or '$(TargetFramework)' == 'net471' Or '$(TargetFramework)' == 'net6.0' ">2.8.2</XunitRunnerVisualStudioPackageReferenceVersion>
   </PropertyGroup>
