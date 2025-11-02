@@ -21,7 +21,7 @@ Describe "Format-Test-Results" {
         $output = Format-Test-Results $obj
         Write-Host $output -ForegroundColor Green
         $output | Should -Match $_.Expected
-        $output | Should -Match "\*\*$($_.SuiteName)\*\*"
+        $output | Should -Match "\<strong\>$($_.SuiteName)\</strong\>"
         $output | Should -Match "Passed=$($_.PassedCount)"
         $output | Should -Match "Failed=$($_.FailedCount)"
         $output | Should -Match "Ignored=$($_.IgnoredCount)"
@@ -75,7 +75,7 @@ Describe "Format-Test-Results" {
             $output = Format-Test-Results $obj
             # details block + matrix summary
             $output | Should -Match '<details>'
-            $output | Should -Match "\*\*MatrixRun\*\*"
+            $output | Should -Match "\<strong\>MatrixRun\</strong\>"
         }
 
         It "renders option rows and escapes pipes" {
@@ -92,9 +92,9 @@ Describe "Format-Test-Results" {
             $output = Format-Test-Results $obj
 
             # Check that option keys and values appear in table rows
-            $output | Should -Match '\|\s*Value1\s*\|\s*one\s*\|'
+            $output | Should -Match '\<tr\>\<td\>\s*Value1\s*\</td\>\<td\>\s*one\s*\</td\>\</tr\>'
             # the pipe character in the value should be escaped as '&#124;'
-            $output | Should -Match '\|\s*ValueWithPipe\s*\|\s*a&#124;b\s*\|'
+            $output | Should -Match '\<tr\>\<td\>\s*ValueWithPipe\s*\</td\>\<td\>\s*a&#124;b\s*\</td\>\</tr\>'
         }
     }
 }

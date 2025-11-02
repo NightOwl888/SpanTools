@@ -63,20 +63,19 @@ function Format-Test-Results {
             }
 
             # Basic one-line summary
-            $summary = "$statusIcon $statusText - **$($r.SuiteName)** " +
+            $summary = "$statusIcon $statusText - <strong>$($r.SuiteName)</strong> " +
                     "| Passed=$($r.PassedCount), Failed=$($r.FailedCount), Ignored=$($r.IgnoredCount)"
 
-            if ($null -eq $r.Options) {
-                [void]$sb.Append("- ")
-                [void]$sb.AppendLine($summary)
-            } else {
+            if ($r.PSObject.Properties.Name -contains 'Options' -and $null -ne $r.Options) {
                 # If Options exist, render an expandable block with a small two-column table
 
                 [void]$sb.AppendLine("  <details>")
                 [void]$sb.AppendLine("  <summary>$summary (click to expand)</summary>")
-                [void]$sb.AppendLine()
-                [void]$sb.AppendLine("  | Option | Value |")
-                [void]$sb.AppendLine("  |--------|-------|")
+                [void]$sb.AppendLine('  <div style="margin-left: 20px; margin-top: 6px; margin-bottom: 6px;">')
+                [void]$sb.AppendLine('  <table>')
+                [void]$sb.AppendLine('    <thead><tr><th>Option</th><th>Value</th></tr></thead>')
+                [void]$sb.AppendLine('    <tbody>')
+
 
                 # gather keys in stable order depending on Options type
                 $keys = @()
@@ -88,20 +87,24 @@ function Format-Test-Results {
                 }
 
                 foreach ($k in $keys) {
+                    # Skip the MatrixID, since it is not an option
+                    if ($k -eq 'MatrixId') { continue }
                     $v = $null
                     try { $v = $r.Options[$k] } catch { $v = $r.Options.$k }
                     $ke = Escape-For-MarkdownTable([string]$k)
                     $ve = Escape-For-MarkdownTable([string]$v)
 
-                    # Skip the MatrixID, since it is not an option
-                    if ($ke -ne 'MatrixId') {
-                        [void]$sb.AppendLine("  | $ke | $ve |")
-                    }
+                    [void]$sb.AppendLine("      <tr><td>$ke</td><td>$ve</td></tr>")
                 }
 
-                [void]$sb.AppendLine()
+                [void]$sb.AppendLine('    </tbody>')
+                [void]$sb.AppendLine('  </table>')
+                [void]$sb.AppendLine('  </div>')
                 [void]$sb.AppendLine("  </details>")
                 [void]$sb.AppendLine()
+            } else {
+                [void]$sb.Append("- ")
+                [void]$sb.AppendLine($summary)
             }
         }
     }
