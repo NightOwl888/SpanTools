@@ -24,7 +24,7 @@
     <PropertyGroup>
       <MatrixOutputDir>$(RepositoryRoot)_artifacts\TestMatrix\$(MatrixId)</MatrixOutputDir>
     </PropertyGroup>
-    <GenerateCartesianMatrix Options="@(ValueStringBuilderOption)"
+    <GenerateCartesianMatrix Options="@(MatrixOption)"
                              Excludes="@(ExcludeMatrixCombination)"
                              OutputDir="$(MatrixOutputDir)"
                              IDPrefix="$(MatrixId)" />

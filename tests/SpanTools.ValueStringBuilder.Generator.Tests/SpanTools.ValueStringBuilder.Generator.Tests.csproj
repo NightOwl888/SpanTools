@@ -12,9 +12,9 @@
   </PropertyGroup>
 
   <ItemGroup Label="Test Matrix">
-    <ValueStringBuilderOption Include="ValueStringBuilder_Namespace" Values="MyNamespace" />
-    <ValueStringBuilderOption Include="ValueStringBuilder_IncludeAsMemoryMethods" Values="true;false" />
-    <ValueStringBuilderOption Include="ValueStringBuilder_IncludeMaxLengthTracking" Values="true;false" />
+    <MatrixOption Include="ValueStringBuilder_Namespace" Values="MyNamespace" />
+    <MatrixOption Include="ValueStringBuilder_IncludeAsMemoryMethods" Values="true;false" />
+    <MatrixOption Include="ValueStringBuilder_IncludeMaxLengthTracking" Values="true;false" />
   </ItemGroup>
 
   <PropertyGroup Label="ValueStringBuilder Options">
