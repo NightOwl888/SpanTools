@@ -22,7 +22,7 @@ namespace MyNamespace
 using Lucene.Net.Text;
 
 // Placeholder namespace so we don't get compile errors on using directives before the code is generated.
-namespace Lucene.Net.Text;
+namespace Lucene.Net.Text
 {
     internal sealed class DummyClass { }
 }
