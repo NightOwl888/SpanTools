@@ -54,6 +54,8 @@ namespace SpanTools.Generator.Tests
             Assert.Equal("a", vsb.ToString());
         }
 
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING
+
         [Fact]
         public void Append_Char_CapacityExceeded_TracksMaxLength()
         {
@@ -82,6 +84,8 @@ namespace SpanTools.Generator.Tests
                 sb.Dispose();
             }
         }
+
+#endif
 
         [Fact]
         public void Append_Char_MatchesStringBuilder()
@@ -131,6 +135,8 @@ namespace SpanTools.Generator.Tests
             Assert.Equal(sb.ToString(), vsb.ToString());
         }
 
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING
+
         [Fact]
         public void Append_String_BeyondCapacity_SetsCapacityExceeded()
         {
@@ -171,6 +177,7 @@ namespace SpanTools.Generator.Tests
                 sb.Dispose();
             }
         }
+#endif
 
         [Fact]
         public void Append_CharInt_MatchesStringBuilder()
@@ -186,6 +193,8 @@ namespace SpanTools.Generator.Tests
             Assert.Equal(sb.Length, vsb.Length);
             Assert.Equal(sb.ToString(), vsb.ToString());
         }
+
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING
 
         [Fact]
         public void Append_CharInt_CapacityExeeded_SetsMaxLength()
@@ -215,6 +224,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
+#endif
 #if FEATURE_COMPILE_UNSAFE
 
         [Fact]
@@ -260,6 +270,8 @@ namespace SpanTools.Generator.Tests
             Assert.Equal(sb.ToString(), vsb.ToString());
         }
 
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING
+
         [Fact]
         public void AppendSpan_CapacityExceeded_TracksMaxLength()
         {
@@ -289,6 +301,7 @@ namespace SpanTools.Generator.Tests
                 sb.Dispose();
             }
         }
+#endif
 
         [Fact]
         public void Insert_IntCharInt_MatchesStringBuilder()
@@ -307,6 +320,8 @@ namespace SpanTools.Generator.Tests
             Assert.Equal(sb.Length, vsb.Length);
             Assert.Equal(sb.ToString(), vsb.ToString());
         }
+
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING
 
         [Fact]
         public void Insert_IntCharInt_TracksMaxLength()
@@ -338,6 +353,8 @@ namespace SpanTools.Generator.Tests
                 sb.Dispose();
             }
         }
+
+#endif
 
         [Fact]
         public void AsSpan_ReturnsCorrectValue_DoesntClearBuilder()
@@ -468,7 +485,9 @@ namespace SpanTools.Generator.Tests
             // LUCENENET: We over-allocate compared with the BCL
             Assert.Equal(65, newCapacity);
             Assert.True(builder.Capacity >= 128, $"Expected capacity >= 128 but was {builder.Capacity}.");
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING
             Assert.True(builder.CapacityExceeded);
+#endif
         }
 
         [Fact]
@@ -481,7 +500,9 @@ namespace SpanTools.Generator.Tests
             // LUCENENET: We over-allocate compared with the BCL
             Assert.Equal(64, newCapacity);
             Assert.True(builder.Capacity >= 64, $"Expected capacity >= 64 but was {builder.Capacity}.");
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING
             Assert.True(builder.CapacityExceeded);
+#endif
         }
 
         [Fact]
@@ -495,6 +516,8 @@ namespace SpanTools.Generator.Tests
 
             Assert.Equal(64, builder.Capacity);
         }
+
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING
 
         [Fact]
         public void Length_BeyondCapacity_TracksMaxLength()
@@ -526,6 +549,8 @@ namespace SpanTools.Generator.Tests
                 sb.Dispose();
             }
         }
+
+#endif
 
         [Theory]
         [InlineData("Hello", 0, '\0', "\0Hello")]

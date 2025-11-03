@@ -84,6 +84,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING
 
         [Fact]
         public void InsertCodePoint_CapacityExceeded_TracksMaxLength()
@@ -111,6 +112,8 @@ namespace SpanTools.Generator.Tests
                 sb.Dispose();
             }
         }
+
+#endif
 
         [Fact]
         public virtual void TestInsertCodePointBmp()

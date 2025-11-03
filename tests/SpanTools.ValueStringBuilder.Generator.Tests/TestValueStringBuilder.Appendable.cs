@@ -420,6 +420,8 @@ namespace SpanTools.Generator.Tests
             }
         }
 
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING
+
         [Fact]
         public void Test_Insert_ICharSequence_BeyondCapacity_TracksMaxLength()
         {
@@ -443,6 +445,8 @@ namespace SpanTools.Generator.Tests
             Assert.Equal(4, sb.Length);
             Assert.Equal(13, sb.MaxLength);
         }
+
+#endif
 
         /**
          * @tests java.lang.StringBuilder.Insert(int, CharSequence)
@@ -509,6 +513,8 @@ namespace SpanTools.Generator.Tests
             }
         }
 
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING
+
         [Fact]
         public void Test_Insert_StringBuilder_BeyondCapacity_TracksMaxLength()
         {
@@ -532,5 +538,6 @@ namespace SpanTools.Generator.Tests
             Assert.Equal(4, sb.Length);
             Assert.Equal(13, sb.MaxLength);
         }
+#endif
     }
 }

@@ -24,6 +24,8 @@ namespace SpanTools.Generator.Tests
             Assert.Equal(expected, builder.ToString());
         }
 
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING
+
         [Fact]
         public void Remove_BeyondCapacity_TracksMaxLength()
         {
@@ -47,6 +49,8 @@ namespace SpanTools.Generator.Tests
             Assert.Equal(4, sb.Length);
             Assert.Equal(13, sb.MaxLength);
         }
+
+#endif
 
         /**
          * @tests java.lang.StringBuilder.delete(int, int)

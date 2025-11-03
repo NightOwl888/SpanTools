@@ -149,6 +149,8 @@ namespace SpanTools.Generator.Tests
             Assert.Equal(expected, sb.ToString());
         }
 
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING
+
         [Fact]
         public void AppendUpper_CapacityExceeded_TracksMaxLength()
         {
@@ -264,5 +266,6 @@ namespace SpanTools.Generator.Tests
                 sb.Dispose();
             }
         }
+#endif
     }
 }
