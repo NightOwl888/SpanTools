@@ -18,7 +18,7 @@ namespace MyNamespace
 {
     internal sealed class DummyClass { }
 }
-#elif FEATURE_NAMESPACE_LUCENENET
+#elif FEATURE_NAMESPACE_LUCENENETTEXT
 using Lucene.Net.Text;
 
 // Placeholder namespace so we don't get compile errors on using directives before the code is generated.
