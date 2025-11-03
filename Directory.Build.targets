@@ -52,24 +52,46 @@
           foreach (var opt in Options)
               allOptions[opt.ItemSpec] = (opt.GetMetadata("Values") ?? "").Split(new[]{';'}, StringSplitOptions.None);
 
+          // Build a lookup of valid option keys (case-insensitive)
+          var validKeys = new HashSet<string>(allOptions.Keys, StringComparer.OrdinalIgnoreCase);
+
           var excludes = new List<Dictionary<string,string>>();
           foreach (var ex in Excludes ?? Array.Empty<ITaskItem>())
           {
-              var dict = ex.MetadataNames.Cast<string>()
-                  .Where(k => !string.Equals(k, "Condition", StringComparison.OrdinalIgnoreCase)
-                           && !string.Equals(k, "Reason", StringComparison.OrdinalIgnoreCase))
-                  .ToDictionary(k => k, k => ex.GetMetadata(k), StringComparer.OrdinalIgnoreCase);
-              excludes.Add(dict);
-          }
+              var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+              foreach (string name in ex.MetadataNames)
+              {
+                  // Only include metadata names that are valid matrix option keys
+                  if (!validKeys.Contains(name))
+                      continue;
+
+                  var value = ex.GetMetadata(name);
+                  if (!string.IsNullOrEmpty(value))
+                      dict[name] = value;
+              }
+
+              if (dict.Count > 0)
+                  excludes.Add(dict);
+          }
+          
           var keys = allOptions.Keys.ToList();
           var combos = new List<Dictionary<string,string>>();
-          void Recurse(int i, Dictionary<string,string> cur) {
-              if (i == keys.Count) {
+          void Recurse(int i, Dictionary<string,string> cur)
+          {
+              if (i == keys.Count)
+              {
                   // Check exclusions
-                  foreach (var ex in excludes) {
-                      bool match = ex.All(kv => cur.TryGetValue(kv.Key, out var val) && val == kv.Value);
-                      if (match) return;
+                  foreach (var ex in excludes)
+                  {
+                      bool match = ex.All(kv => 
+                        cur.TryGetValue(kv.Key, out var val) &&
+                        string.Equals(val, kv.Value, StringComparison.OrdinalIgnoreCase));
+                      if (match)
+                      {
+                          Log.LogMessage(MessageImportance.High, $"Excluded combination: {string.Join(", ", cur.Select(kv => $"{kv.Key}={kv.Value}"))}");
+                          return;
+                      }
                   }
                   combos.Add(new Dictionary<string,string>(cur));
                   return;
