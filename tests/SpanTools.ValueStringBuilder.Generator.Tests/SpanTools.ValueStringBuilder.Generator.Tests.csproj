@@ -12,8 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup Label="Test Matrix">
-    <MatrixOption Include="RootNamespace" Values="MyNamespace;;Lucene.Net.Text" />
-    <MatrixOption Include="ValueStringBuilder_Namespace" Values="MyNamespace;;Lucene.Net.Text" />
+    <MatrixOption Include="RootNamespace" Values="MyNamespace;Lucene.Net.Text" />
+    <MatrixOption Include="ValueStringBuilder_Namespace" Values="MyNamespace;global::;Lucene.Net.Text;" />
 
     <MatrixOption Include="ValueStringBuilder_IncludeAsMemoryMethods" Values="true;false" />
     <MatrixOption Include="ValueStringBuilder_IncludeMaxLengthTracking" Values="true;false" />
@@ -26,13 +26,22 @@
                               Reason="Cannot have both namespaces active." />
     <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict2"
                               RootNamespace="MyNamespace"
-                              ValueStringBuilder_Namespace="Lucene.Net.Text"
+                              ValueStringBuilder_Namespace="global::"
                               Reason="Cannot have both namespaces active." />
     <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict3"
+                              RootNamespace="MyNamespace"
+                              ValueStringBuilder_Namespace="Lucene.Net.Text"
+                              Reason="Cannot have both namespaces active." />
+    
+    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict4"
                               RootNamespace="Lucene.Net.Text"
                               ValueStringBuilder_Namespace="MyNamespace"
                               Reason="Cannot have both namespaces active." />
-    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict4"
+    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict6"
+                              RootNamespace="Lucene.Net.Text"
+                              ValueStringBuilder_Namespace="global::"
+                              Reason="Cannot have both namespaces active." />
+    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict6"
                               RootNamespace="Lucene.Net.Text"
                               ValueStringBuilder_Namespace="Lucene.Net.Text"
                               Reason="Cannot have both namespaces active." />
@@ -55,7 +64,7 @@
     <_EffectiveNamespace Condition=" '$(ValueStringBuilder_Namespace)' != '' ">$(ValueStringBuilder_Namespace)</_EffectiveNamespace>
     <DefineConstants Condition=" '$(_EffectiveNamespace)' == 'MyNamespace' ">$(DefineConstants);FEATURE_NAMESPACE_MYNAMESPACE</DefineConstants>
     <DefineConstants Condition=" '$(_EffectiveNamespace)' == 'Lucene.Net.Text' ">$(DefineConstants);FEATURE_NAMESPACE_LUCENENETTEXT</DefineConstants>
-    <DefineConstants Condition=" '$(_EffectiveNamespace)' == '' ">$(DefineConstants);FEATURE_NAMESPACE_EMPTY</DefineConstants>
+    <DefineConstants Condition=" '$(_EffectiveNamespace)' == '' Or '$(_EffectiveNamespace.ToLower())' == 'global::' ">$(DefineConstants);FEATURE_NAMESPACE_GLOBAL</DefineConstants>
 
     <DefineConstants Condition=" '$(AllowUnsafeBlocks.ToLower())' == 'true' ">$(DefineConstants);FEATURE_COMPILE_UNSAFE</DefineConstants>
     <DefineConstants Condition=" '$(ValueStringBuilder_IncludeAsMemoryMethods.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_INCLUDEASMEMORYMETHODS</DefineConstants>

@@ -24,7 +24,7 @@ namespace SpanTools
             cb.WriteLine("using System.Threading.Tasks;");
             cb.WriteLine("#nullable enable");
             cb.WriteLine();
-            cb.WriteLineIf(!string.IsNullOrWhiteSpace(options.Namespace), $"namespace {options.Namespace};");
+            WriteNamespace(cb, options);
             cb.WriteLine();
             cb.WriteLine("internal ref partial struct ValueStringBuilder");
             cb.WriteLine("{");

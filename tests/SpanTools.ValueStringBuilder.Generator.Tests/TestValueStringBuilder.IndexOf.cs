@@ -11,7 +11,7 @@ using Xunit;
 using MyNamespace;
 #elif FEATURE_NAMESPACE_LUCENENETTEXT
 using Lucene.Net.Text;
-#elif FEATURE_NAMESPACE_EMPTY
+#elif FEATURE_NAMESPACE_GLOBAL
 // Global namespace
 #endif
 

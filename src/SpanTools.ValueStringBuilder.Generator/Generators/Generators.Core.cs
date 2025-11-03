@@ -25,8 +25,7 @@ namespace SpanTools
             cb.WriteLine("using System.Text;");
             cb.WriteLine("#nullable enable");
             cb.WriteLine();
-            cb.WriteLine($"// ValueStringBuilder_IncludeMaxLengthTracking: {options.IncludeMaxLengthTracking}");
-            cb.WriteLineIf(!string.IsNullOrWhiteSpace(options.Namespace), $"namespace {options.Namespace};");
+            WriteNamespace(cb, options);
             cb.WriteLine();
             cb.WriteLine("/// <summary>");
             cb.WriteLine("/// Represents a mutable set of characters and provides access to the underlying memory.");

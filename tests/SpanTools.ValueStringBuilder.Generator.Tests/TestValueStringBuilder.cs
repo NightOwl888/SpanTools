@@ -26,7 +26,7 @@ namespace Lucene.Net.Text;
 {
     internal sealed class DummyClass { }
 }
-#elif FEATURE_NAMESPACE_EMPTY
+#elif FEATURE_NAMESPACE_GLOBAL
 // Global namespace
 #endif
 
@@ -37,14 +37,13 @@ namespace SpanTools.Generator.Tests
         [Fact]
         public void Namespace_Matches_Specified()
         {
-
 #if FEATURE_NAMESPACE_MYNAMESPACE
             Assert.Equal("MyNamespace", typeof(ValueStringBuilder).Namespace);
 #elif FEATURE_NAMESPACE_LUCENENETTEXT
             Assert.Equal("Lucene.Net.Text", typeof(ValueStringBuilder).Namespace);
-#elif FEATURE_NAMESPACE_EMPTY
+#elif FEATURE_NAMESPACE_GLOBAL
             // Global namespace
-            Assert.Equal(null, typeof(ValueStringBuilder).Namespace);
+            Assert.Null(typeof(ValueStringBuilder).Namespace);
 #endif
         }
 
