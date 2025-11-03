@@ -46,8 +46,8 @@
       <VSBProps Include="ValueStringBuilder_IncludeAsMemoryMethods=$(ValueStringBuilder_IncludeAsMemoryMethods)" />
       <VSBProps Include="ValueStringBuilder_IncludesJ2N=$(ValueStringBuilder_IncludesJ2N)" />
       <VSBProps Include="ValueStringBuilder_J2NPackageVersion=$(_J2N_ResolvedPackageVersion)" />
+      <VSBProps Include="ValueStringBuilder_IncludeCodepointSupport=$(ValueStringBuilder_IncludeCodepointSupport)" />
       <VSBProps Include="ValueStringBuilder_UseJavaStyleFormatting=$(ValueStringBuilder_UseJavaStyleFormatting)" />
-      <!-- Add future properties here -->
     </ItemGroup>
 
     <!-- Write all properties to one file -->
