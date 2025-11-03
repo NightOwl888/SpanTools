@@ -2,7 +2,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using MyNamespace;
 using SpanTools.TestUtilities.Xunit;
 using System;
 using System.Collections.Generic;
@@ -11,16 +10,44 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Xunit;
 
+#if FEATURE_NAMESPACE_MYNAMESPACE
+using MyNamespace;
+
 // Placeholder namespace so we don't get compile errors on using directives before the code is generated.
 namespace MyNamespace
 {
     internal sealed class DummyClass { }
 }
+#elif FEATURE_NAMESPACE_LUCENENET
+using Lucene.Net.Text;
+
+// Placeholder namespace so we don't get compile errors on using directives before the code is generated.
+namespace Lucene.Net.Text;
+{
+    internal sealed class DummyClass { }
+}
+#elif FEATURE_NAMESPACE_EMPTY
+// Global namespace
+#endif
 
 namespace SpanTools.Generator.Tests
 {
     public partial class ValueStringBuilderTests
     {
+        [Fact]
+        public void Namespace_Matches_Specified()
+        {
+
+#if FEATURE_NAMESPACE_MYNAMESPACE
+            Assert.Equal(typeof(ValueStringBuilder).Namespace, "MyNamespace");
+#elif FEATURE_NAMESPACE_LUCENENETTEXT
+            Assert.Equal(typeof(ValueStringBuilder).Namespace, "Lucene.Net.Text");
+#elif FEATURE_NAMESPACE_EMPTY
+            // Global namespace
+            Assert.Equal(typeof(ValueStringBuilder).Namespace, null);
+#endif
+        }
+
         [Fact]
         public void Ctor_Default_CanAppend()
         {

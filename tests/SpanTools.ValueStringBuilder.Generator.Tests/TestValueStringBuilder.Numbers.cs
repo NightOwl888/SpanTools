@@ -2,7 +2,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using MyNamespace;
 using SpanTools.TestUtilities;
 using SpanTools.TestUtilities.Xunit;
 using System;
@@ -12,6 +11,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+
+#if FEATURE_NAMESPACE_MYNAMESPACE
+using MyNamespace;
+#elif FEATURE_NAMESPACE_LUCENENETTEXT
+using Lucene.Net.Text;
+#elif FEATURE_NAMESPACE_EMPTY
+// Global namespace
+#endif
 
 namespace SpanTools.Generator.Tests
 {

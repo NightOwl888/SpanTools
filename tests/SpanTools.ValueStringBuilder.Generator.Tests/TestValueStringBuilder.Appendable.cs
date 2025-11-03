@@ -2,10 +2,17 @@
 // found in the LICENSE.txt file or at https://opensource.org/licenses/MIT.
 
 using J2N.Text;
-using MyNamespace;
 using System;
 using System.Text;
 using Xunit;
+
+#if FEATURE_NAMESPACE_MYNAMESPACE
+using MyNamespace;
+#elif FEATURE_NAMESPACE_LUCENENETTEXT
+using Lucene.Net.Text;
+#elif FEATURE_NAMESPACE_EMPTY
+// Global namespace
+#endif
 
 namespace SpanTools.Generator.Tests
 {

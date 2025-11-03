@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <RootNamespace>SpanTools.Generator.Tests</RootNamespace>
+    <RootNamespace Condition=" '$(ImportPropsFile)' == '' ">SpanTools.Generator.Tests</RootNamespace>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
@@ -12,17 +12,38 @@
   </PropertyGroup>
 
   <ItemGroup Label="Test Matrix">
-    <MatrixOption Include="ValueStringBuilder_Namespace" Values="MyNamespace" />
+    <MatrixOption Include="RootNamespace" Values="MyNamespace;;Lucene.Net.Text" />
+    <MatrixOption Include="ValueStringBuilder_Namespace" Values="MyNamespace;;Lucene.Net.Text" />
+
     <MatrixOption Include="ValueStringBuilder_IncludeAsMemoryMethods" Values="true;false" />
     <MatrixOption Include="ValueStringBuilder_IncludeMaxLengthTracking" Values="true;false" />
   </ItemGroup>
 
+  <ItemGroup Label="Test Matrix Excludes">
+    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict1"
+                              RootNamespace="MyNamespace"
+                              ValueStringBuilder_Namespace="MyNamespace"
+                              Reason="Cannot have both namespaces active." />
+    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict2"
+                              RootNamespace="MyNamespace"
+                              ValueStringBuilder_Namespace="Lucene.Net.Text"
+                              Reason="Cannot have both namespaces active." />
+    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict3"
+                              RootNamespace="Lucene.Net.Text"
+                              ValueStringBuilder_Namespace="MyNamespace"
+                              Reason="Cannot have both namespaces active." />
+    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict4"
+                              RootNamespace="Lucene.Net.Text"
+                              ValueStringBuilder_Namespace="Lucene.Net.Text"
+                              Reason="Cannot have both namespaces active." />
+  </ItemGroup>
+
   <PropertyGroup Label="ValueStringBuilder Options">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <ValueStringBuilder_IncludeAsMemoryMethods Condition=" '$(ValueStringBuilder_IncludeAsMemoryMethods)' == '' ">true</ValueStringBuilder_IncludeAsMemoryMethods>
-    <ValueStringBuilder_IncludeMaxLengthTracking Condition=" '$(ValueStringBuilder_IncludeMaxLengthTracking)' == '' ">true</ValueStringBuilder_IncludeMaxLengthTracking>
-    <ValueStringBuilder_Namespace Condition=" '$(ValueStringBuilder_Namespace)' == '' ">MyNamespace</ValueStringBuilder_Namespace>
-    <ValueStringBuilder_UseJavaStyleFormatting Condition=" '$(ValueStringBuilder_UseJavaStyleFormatting)' == '' ">true</ValueStringBuilder_UseJavaStyleFormatting>
+    <ValueStringBuilder_IncludeAsMemoryMethods Condition=" '$(ImportPropsFile)' == '' ">true</ValueStringBuilder_IncludeAsMemoryMethods>
+    <ValueStringBuilder_IncludeMaxLengthTracking Condition=" '$(ImportPropsFile)' == '' ">true</ValueStringBuilder_IncludeMaxLengthTracking>
+    <ValueStringBuilder_Namespace Condition=" '$(ImportPropsFile)' == '' ">MyNamespace</ValueStringBuilder_Namespace>
+    <ValueStringBuilder_UseJavaStyleFormatting Condition=" '$(ImportPropsFile)' == '' ">true</ValueStringBuilder_UseJavaStyleFormatting>
   </PropertyGroup>
 
   <ItemGroup Label="ValueStringBuilder Options">
@@ -30,6 +51,12 @@
   </ItemGroup>
   
   <PropertyGroup Label="Compilation Options">
+    <_EffectiveNamespace>$(RootNamespace)</_EffectiveNamespace>
+    <_EffectiveNamespace Condition=" '$(ValueStringBuilder_Namespace)' != '' ">$(ValueStringBuilder_Namespace)</_EffectiveNamespace>
+    <DefineConstants Condition=" '$(_EffectiveNamespace)' == 'MyNamespace' ">$(DefineConstants);FEATURE_NAMESPACE_MYNAMESPACE</DefineConstants>
+    <DefineConstants Condition=" '$(_EffectiveNamespace)' == 'Lucene.Net.Text' ">$(DefineConstants);FEATURE_NAMESPACE_LUCENENETTEXT</DefineConstants>
+    <DefineConstants Condition=" '$(_EffectiveNamespace)' == '' ">$(DefineConstants);FEATURE_NAMESPACE_EMPTY</DefineConstants>
+
     <DefineConstants Condition=" '$(AllowUnsafeBlocks.ToLower())' == 'true' ">$(DefineConstants);FEATURE_COMPILE_UNSAFE</DefineConstants>
     <DefineConstants Condition=" '$(ValueStringBuilder_IncludeAsMemoryMethods.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_INCLUDEASMEMORYMETHODS</DefineConstants>
     <DefineConstants Condition=" '$(ValueStringBuilder_IncludeMaxLengthTracking.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING</DefineConstants>
