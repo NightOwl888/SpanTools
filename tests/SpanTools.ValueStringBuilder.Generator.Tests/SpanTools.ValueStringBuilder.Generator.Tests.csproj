@@ -31,6 +31,7 @@
   
   <PropertyGroup Label="Compilation Options">
     <DefineConstants Condition=" '$(AllowUnsafeBlocks.ToLower())' == 'true' ">$(DefineConstants);FEATURE_COMPILE_UNSAFE</DefineConstants>
+    <DefineConstants Condition=" '$(ValueStringBuilder_IncludeAsMemoryMethods.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_INCLUDEASMEMORYMETHODS</DefineConstants>
     <DefineConstants Condition=" '$(ValueStringBuilder_UseJavaStyleFormatting.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEFORMATTING</DefineConstants>
   </PropertyGroup>
 

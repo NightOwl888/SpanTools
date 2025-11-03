@@ -666,6 +666,8 @@ namespace SpanTools.Generator.Tests
 
         #endregion AsSpan
 
+#if FEATURE_VALUESTRINGBUILDER_INCLUDEASMEMORYMETHODS
+
         #region AsMemory
 
         [Theory]
@@ -713,6 +715,8 @@ namespace SpanTools.Generator.Tests
         }
 
         #endregion AsMemory
+
+#endif
 
     }
 }
