@@ -39,12 +39,12 @@ namespace SpanTools.Generator.Tests
         {
 
 #if FEATURE_NAMESPACE_MYNAMESPACE
-            Assert.Equal(typeof(ValueStringBuilder).Namespace, "MyNamespace");
+            Assert.Equal("MyNamespace", typeof(ValueStringBuilder).Namespace);
 #elif FEATURE_NAMESPACE_LUCENENETTEXT
-            Assert.Equal(typeof(ValueStringBuilder).Namespace, "Lucene.Net.Text");
+            Assert.Equal("Lucene.Net.Text", typeof(ValueStringBuilder).Namespace);
 #elif FEATURE_NAMESPACE_EMPTY
             // Global namespace
-            Assert.Equal(typeof(ValueStringBuilder).Namespace, null);
+            Assert.Equal(null, typeof(ValueStringBuilder).Namespace);
 #endif
         }
 
