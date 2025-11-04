@@ -1,0 +1,18 @@
+﻿<Project>
+
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Label="ValueStringBuilder Options">
+    <ValueStringBuilder_IncludeAsMemoryMethods>true</ValueStringBuilder_IncludeAsMemoryMethods>
+    <ValueStringBuilder_IncludeMaxLengthTracking>true</ValueStringBuilder_IncludeMaxLengthTracking>
+    <ValueStringBuilder_Namespace>MyNamespace</ValueStringBuilder_Namespace>
+    <ValueStringBuilder_UseJavaStyleFormatting>true</ValueStringBuilder_UseJavaStyleFormatting>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="J2N" VersionOverride="2.2.0-alpha-0026" />
+  </ItemGroup>
+  
+</Project>

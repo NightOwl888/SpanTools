@@ -46,18 +46,6 @@
                               ValueStringBuilder_Namespace="Lucene.Net.Text"
                               Reason="Cannot have both namespaces active." />
   </ItemGroup>
-
-  <PropertyGroup Label="ValueStringBuilder Options">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <ValueStringBuilder_IncludeAsMemoryMethods Condition=" '$(ImportPropsFile)' == '' ">true</ValueStringBuilder_IncludeAsMemoryMethods>
-    <ValueStringBuilder_IncludeMaxLengthTracking Condition=" '$(ImportPropsFile)' == '' ">true</ValueStringBuilder_IncludeMaxLengthTracking>
-    <ValueStringBuilder_Namespace Condition=" '$(ImportPropsFile)' == '' ">MyNamespace</ValueStringBuilder_Namespace>
-    <ValueStringBuilder_UseJavaStyleFormatting Condition=" '$(ImportPropsFile)' == '' ">true</ValueStringBuilder_UseJavaStyleFormatting>
-  </PropertyGroup>
-
-  <ItemGroup Label="ValueStringBuilder Options">
-    <PackageReference Include="J2N" VersionOverride="2.2.0-alpha-0026" />
-  </ItemGroup>
   
   <PropertyGroup Label="Compilation Options">
     <_EffectiveNamespace>$(RootNamespace)</_EffectiveNamespace>
