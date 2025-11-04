@@ -134,6 +134,8 @@ namespace SpanTools.Generator.Tests
             }
         }
 
+#if FEATURE_J2N_2_1_OR_GREATER
+
         private void reverseTest(String org, String rev, String back)
         {
             // create non-shared StringBuilder
@@ -273,6 +275,8 @@ namespace SpanTools.Generator.Tests
                 sb.Dispose();
             }
         }
+
+#endif
 
         /**
          * @tests java.lang.StringBuilder.replace(int, int, String)'
