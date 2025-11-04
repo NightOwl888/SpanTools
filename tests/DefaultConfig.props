@@ -11,8 +11,8 @@
     <ValueStringBuilder_UseJavaStyleFormatting>true</ValueStringBuilder_UseJavaStyleFormatting>
   </PropertyGroup>
   
-  <!--<ItemGroup>
+  <ItemGroup>
     <PackageReference Include="J2N" VersionOverride="2.2.0-alpha-0026" />
-  </ItemGroup>-->
+  </ItemGroup>
   
 </Project>

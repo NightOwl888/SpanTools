@@ -18,6 +18,15 @@
 
     <MatrixOption Include="ValueStringBuilder_IncludeAsMemoryMethods" Values="true;false" />
     <MatrixOption Include="ValueStringBuilder_IncludeMaxLengthTracking" Values="true;false" />
+    <MatrixOption Include="ValueStringBuilder_IncludeCodepointSupport" Values="true;false" />
+  </ItemGroup>
+
+  <ItemGroup Label="Test Matrix Packages">
+    <MatrixPackageReference Include="ValueStringBuilder_IncludeCodepointSupport">
+      <WhenValue>true</WhenValue>
+      <PackageId>J2N</PackageId>
+      <Versions>2.2.0-alpha-0026</Versions>
+    </MatrixPackageReference>
   </ItemGroup>
 
   <ItemGroup Label="Test Matrix Excludes">
@@ -28,10 +37,6 @@
     <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict4" RootNamespace="Lucene.Net.Text" ValueStringBuilder_Namespace="MyNamespace" Reason="Cannot have both namespaces active." />
     <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict6" RootNamespace="Lucene.Net.Text" ValueStringBuilder_Namespace="global::" Reason="Cannot have both namespaces active." />
     <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict6" RootNamespace="Lucene.Net.Text" ValueStringBuilder_Namespace="Lucene.Net.Text" Reason="Cannot have both namespaces active." />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="J2N" VersionOverride="2.2.0-alpha-0026" />
   </ItemGroup>
 
   <ItemGroup>
