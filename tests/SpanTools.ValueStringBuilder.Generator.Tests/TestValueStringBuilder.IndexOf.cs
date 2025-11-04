@@ -1,7 +1,6 @@
 ﻿// Use of this source code is governed by an MIT-style license that can be
 // found in the LICENSE.txt file or at https://opensource.org/licenses/MIT.
 
-using J2N.Globalization;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,6 +8,7 @@ using Xunit;
 
 #if FEATURE_NAMESPACE_MYNAMESPACE
 using MyNamespace;
+using SpanTools.TestUtilities;
 #elif FEATURE_NAMESPACE_LUCENENETTEXT
 using Lucene.Net.Text;
 #elif FEATURE_NAMESPACE_GLOBAL
@@ -47,7 +47,7 @@ namespace SpanTools.Generator.Tests
 
                 string target;
                 var culture = new CultureInfo("ru-MD");
-                using (var context = new CultureContext(culture))
+                using (var context = new ThreadCultureChange(culture))
                 {
                     target = FixtureString;
                     yield return new object[] { target, SearchForString, 6, StringComparison.Ordinal, culture };
@@ -85,7 +85,7 @@ namespace SpanTools.Generator.Tests
 
                 string target;
                 var culture = new CultureInfo("ru-MD");
-                using (var context = new CultureContext(culture))
+                using (var context = new ThreadCultureChange(culture))
                 {
                     target = FixtureString;
                     yield return new object[] { target, SearchForString, target.LastIndexOf(SearchForString, StringComparison.Ordinal), StringComparison.Ordinal, culture };
@@ -125,7 +125,7 @@ namespace SpanTools.Generator.Tests
 
                 string target;
                 var culture = new CultureInfo("ru-MD");
-                using (var context = new CultureContext(culture))
+                using (var context = new ThreadCultureChange(culture))
                 {
                     target = FixtureString;
                     int startIndex = 20;
@@ -161,7 +161,7 @@ namespace SpanTools.Generator.Tests
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
             sb.Append(source);
 
-            using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
+            using IDisposable context = culture is not null ? new ThreadCultureChange(culture) : new DummyDisposable();
 
             int actual = sb.IndexOf(target.AsSpan());
             Assert.Equal(expected, actual);
@@ -174,7 +174,7 @@ namespace SpanTools.Generator.Tests
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
             sb.Append(source);
 
-            using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
+            using IDisposable context = culture is not null ? new ThreadCultureChange(culture) : new DummyDisposable();
 
             int actual = sb.IndexOf(target, comparison);
             Assert.Equal(expected, actual);
@@ -187,7 +187,7 @@ namespace SpanTools.Generator.Tests
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
             sb.Append(source);
 
-            using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
+            using IDisposable context = culture is not null ? new ThreadCultureChange(culture) : new DummyDisposable();
 
             int actual = sb.IndexOf(target.AsSpan(), comparison);
             Assert.Equal(expected, actual);
@@ -202,7 +202,7 @@ namespace SpanTools.Generator.Tests
             sb.Append(' ', startIndex);
             sb.Append(source);
 
-            using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
+            using IDisposable context = culture is not null ? new ThreadCultureChange(culture) : new DummyDisposable();
 
             int actual = sb.IndexOf(target, startIndex, comparison);
             Assert.Equal(expected + startIndex, actual);
@@ -217,7 +217,7 @@ namespace SpanTools.Generator.Tests
             sb.Append(' ', startIndex);
             sb.Append(source);
 
-            using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
+            using IDisposable context = culture is not null ? new ThreadCultureChange(culture) : new DummyDisposable();
 
             int actual = sb.IndexOf(target.AsSpan(), startIndex, comparison);
             Assert.Equal(expected + startIndex, actual);
@@ -245,7 +245,7 @@ namespace SpanTools.Generator.Tests
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
             sb.Append(source);
 
-            using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
+            using IDisposable context = culture is not null ? new ThreadCultureChange(culture) : new DummyDisposable();
 
             int actual = sb.LastIndexOf(target.AsSpan());
             Assert.Equal(expected, actual);
@@ -260,7 +260,7 @@ namespace SpanTools.Generator.Tests
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
             sb.Append(source);
 
-            using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
+            using IDisposable context = culture is not null ? new ThreadCultureChange(culture) : new DummyDisposable();
 
             int actual = sb.LastIndexOf(target, comparison);
             Assert.Equal(expected, actual);
@@ -273,7 +273,7 @@ namespace SpanTools.Generator.Tests
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
             sb.Append(source);
 
-            using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
+            using IDisposable context = culture is not null ? new ThreadCultureChange(culture) : new DummyDisposable();
 
             int actual = sb.LastIndexOf(target.AsSpan(), comparison);
             Assert.Equal(expected, actual);
@@ -286,7 +286,7 @@ namespace SpanTools.Generator.Tests
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
             sb.Append(source);
 
-            using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
+            using IDisposable context = culture is not null ? new ThreadCultureChange(culture) : new DummyDisposable();
 
             int actual = sb.LastIndexOf(target, startIndex, comparison);
             Assert.Equal(expected, actual);
@@ -299,7 +299,7 @@ namespace SpanTools.Generator.Tests
             using ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[source.Length]);
             sb.Append(source);
 
-            using IDisposable context = culture is not null ? new CultureContext(culture) : new DummyDisposable();
+            using IDisposable context = culture is not null ? new ThreadCultureChange(culture) : new DummyDisposable();
 
             int actual = sb.LastIndexOf(target.AsSpan(), startIndex, comparison);
             Assert.Equal(expected, actual);
