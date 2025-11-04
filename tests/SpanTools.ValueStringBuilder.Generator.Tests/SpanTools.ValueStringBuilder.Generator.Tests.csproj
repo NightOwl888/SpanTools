@@ -47,19 +47,10 @@
                               ValueStringBuilder_Namespace="Lucene.Net.Text"
                               Reason="Cannot have both namespaces active." />
   </ItemGroup>
-  
-  <PropertyGroup Label="Compilation Options">
-    <_EffectiveNamespace>$(RootNamespace)</_EffectiveNamespace>
-    <_EffectiveNamespace Condition=" '$(ValueStringBuilder_Namespace)' != '' ">$(ValueStringBuilder_Namespace)</_EffectiveNamespace>
-    <DefineConstants Condition=" '$(_EffectiveNamespace)' == 'MyNamespace' ">$(DefineConstants);FEATURE_NAMESPACE_MYNAMESPACE</DefineConstants>
-    <DefineConstants Condition=" '$(_EffectiveNamespace)' == 'Lucene.Net.Text' ">$(DefineConstants);FEATURE_NAMESPACE_LUCENENETTEXT</DefineConstants>
-    <DefineConstants Condition=" '$(_EffectiveNamespace)' == '' Or '$(_EffectiveNamespace.ToLower())' == 'global::' ">$(DefineConstants);FEATURE_NAMESPACE_GLOBAL</DefineConstants>
 
-    <DefineConstants Condition=" '$(AllowUnsafeBlocks.ToLower())' == 'true' ">$(DefineConstants);FEATURE_COMPILE_UNSAFE</DefineConstants>
-    <DefineConstants Condition=" '$(ValueStringBuilder_IncludeAsMemoryMethods.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_INCLUDEASMEMORYMETHODS</DefineConstants>
-    <DefineConstants Condition=" '$(ValueStringBuilder_IncludeMaxLengthTracking.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING</DefineConstants>
-    <DefineConstants Condition=" '$(ValueStringBuilder_UseJavaStyleFormatting.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEFORMATTING</DefineConstants>
-  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="J2N" VersionOverride="2.2.0-alpha-0026" />
+  </ItemGroup>
 
   <PropertyGroup>
     <!-- Detect if PackageOutputPath was passed explicitly on the command line -->
@@ -98,6 +89,50 @@
   <ItemGroup Condition="Exists('$(_PackageVersionPropsFilePath)')">
     <Compile Remove="TestPackageNotBuilt.cs" />
   </ItemGroup>
+
+
+  <Target Name="SetDefineConstants" BeforeTargets="CoreCompile">
+    
+     <!-- Get explicit Version from PackageReference metadata -->
+    <ItemGroup>
+      <!-- filter PackageReference(s) with matching ID -->
+      <__J2N_PkgRef Include="@(PackageReference)" Condition="'%(PackageReference.Identity)' == 'J2N'" />
+    </ItemGroup>
+  
+    <PropertyGroup Label="Compilation Options">
+      <!--<_J2N_PkgRef_Version_2 Condition=" '%(_J2N_PkgRef_2.Version)' != ''">%(_J2N_PkgRef_2.Version)</_J2N_PkgRef_Version_2>-->
+      <__J2N_PkgRef_Version>@(_J2N_PkgRef->'%(Version)')</__J2N_PkgRef_Version>
+
+      <_J2N_Version_Raw_Trimmed Condition="'$(__J2N_PkgRef_Version)' != ''">$(__J2N_PkgRef_Version.Trim())</_J2N_Version_Raw_Trimmed>
+      <!-- Extract leading numeric version (major[.minor][.patch]) from possibly prerelease string
+         e.g. "2.2.0-alpha-0026" -> "2.2.0", "2.1" -> "2.1" -->
+      <_J2N_Version_Numeric>$([System.Text.RegularExpressions.Regex]::Match('$(_J2N_Version_Raw_Trimmed)','^\d+(\.\d+){0,2}').Value)</_J2N_Version_Numeric>
+
+      <!-- Default empty -> avoid trying to Parse empty string -->
+      <_J2N_Version_Numeric Condition="$(_J2N_Version_Numeric) == ''"></_J2N_Version_Numeric>
+    
+      <!-- This is defined in SpanTools.ValueStringBuilder.Generator.targets (in the NuGet package) -->
+      <DefineConstants Condition=" '$(_J2N_PkgRef_Version_2)' != '' ">FEATURE_J2N</DefineConstants>
+      <DefineConstants Condition="$(_J2N_Version_Numeric) != '' And $([System.Version]::Parse('$(_J2N_Version_Numeric)').CompareTo($([System.Version]::new('2.0'))) &gt;= 0)">FEATURE_J2N_2_0_OR_GREATER</DefineConstants>
+      <DefineConstants Condition="$(_J2N_Version_Numeric) != '' And $([System.Version]::Parse('$(_J2N_Version_Numeric)').CompareTo($([System.Version]::new('2.1'))) &gt;= 0)">FEATURE_J2N_2_1_OR_GREATER</DefineConstants>
+      <DefineConstants Condition="$(_J2N_Version_Numeric) != '' And $([System.Version]::Parse('$(_J2N_Version_Numeric)').CompareTo($([System.Version]::new('2.2'))) &gt;= 0)">FEATURE_J2N_2_2_OR_GREATER</DefineConstants>
+    
+      <_EffectiveNamespace>$(RootNamespace)</_EffectiveNamespace>
+      <_EffectiveNamespace Condition=" '$(ValueStringBuilder_Namespace)' != '' ">$(ValueStringBuilder_Namespace)</_EffectiveNamespace>
+      <DefineConstants Condition=" '$(_EffectiveNamespace)' == 'MyNamespace' ">$(DefineConstants);FEATURE_NAMESPACE_MYNAMESPACE</DefineConstants>
+      <DefineConstants Condition=" '$(_EffectiveNamespace)' == 'Lucene.Net.Text' ">$(DefineConstants);FEATURE_NAMESPACE_LUCENENETTEXT</DefineConstants>
+      <DefineConstants Condition=" '$(_EffectiveNamespace)' == '' Or '$(_EffectiveNamespace.ToLower())' == 'global::' ">$(DefineConstants);FEATURE_NAMESPACE_GLOBAL</DefineConstants>
+
+      <_AllowUnsafe>$(AllowUnsafeBlocks)</_AllowUnsafe>
+      <_AllowUnsafe Condition="'$(_AllowUnsafe)' != ''">$(_AllowUnsafe.ToLowerInvariant())</_AllowUnsafe>
+      <DefineConstants Condition="'$(_AllowUnsafe)' == 'true'">$(DefineConstants);FEATURE_COMPILE_UNSAFE</DefineConstants>
+    
+      <DefineConstants Condition=" '$(ValueStringBuilder_IncludeAsMemoryMethods.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_INCLUDEASMEMORYMETHODS</DefineConstants>
+      <DefineConstants Condition=" '$(ValueStringBuilder_IncludeMaxLengthTracking.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING</DefineConstants>
+      <DefineConstants Condition=" '$(ValueStringBuilder_UseJavaStyleFormatting.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEFORMATTING</DefineConstants>
+    </PropertyGroup>
+    
+  </Target>
 
   <Target Name="EnsureNuGetPackageBuilt" BeforeTargets="PrepareForBuild" Condition="'$(DesignTimeBuild)' != 'true' And '$(SkipPackageBuild.ToLower())' != 'true' ">
 
