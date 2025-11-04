@@ -1,7 +1,9 @@
 ﻿// Use of this source code is governed by an MIT-style license that can be
 // found in the LICENSE.txt file or at https://opensource.org/licenses/MIT.
 
+#if FEATURE_J2N
 using J2N.Text;
+#endif
 using System;
 using System.Text;
 using Xunit;
@@ -146,7 +148,7 @@ namespace SpanTools.Generator.Tests
             }
         }
 
-
+#if FEATURE_J2N_2_0_OR_GREATER
         /**
          * @tests java.lang.StringBuilder.append(CharSequence)
          */
@@ -297,6 +299,7 @@ namespace SpanTools.Generator.Tests
                 sb.Dispose();
             }
         }
+#endif
 
         /**
          * @tests java.lang.StringBuilder.append(CharSequence)
@@ -361,6 +364,8 @@ namespace SpanTools.Generator.Tests
                 sb.Dispose();
             }
         }
+
+#if FEATURE_J2N_2_0_OR_GREATER
 
         /**
          * @tests java.lang.StringBuilder.Insert(int, CharSequence)
@@ -453,6 +458,7 @@ namespace SpanTools.Generator.Tests
             Assert.Equal(13, sb.MaxLength);
         }
 
+#endif
 #endif
 
         /**
