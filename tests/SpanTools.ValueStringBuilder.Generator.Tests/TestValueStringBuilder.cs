@@ -665,6 +665,8 @@ namespace SpanTools.Generator.Tests
             span.ValidateNonNullEmpty();
         }
 
+#if FEATURE_COMPILE_UNSAFE // TODO: We can remove this feature once we separate the code under test from this project and then we can use unsafe code in the tests
+
         [Theory]
         [MemberData(nameof(TestHelpers.StringSliceTestData), MemberType = typeof(TestHelpers))]
         public static void AsSpan_StartAndLength(string textStr, int start, int length)
@@ -714,6 +716,8 @@ namespace SpanTools.Generator.Tests
                 }
             }
         }
+
+#endif
 
         #endregion AsSpan
 

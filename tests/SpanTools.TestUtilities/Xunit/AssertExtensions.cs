@@ -806,7 +806,6 @@ namespace SpanTools.TestUtilities.Xunit
             return (*(ushort*)(&value)) == 0x0000;
         }
 #endif
-
         // We have a custom ToString here to ensure that edge cases (specifically +-0.0,
         // but also NaN and +-infinity) are correctly and consistently represented.
         static string ToStringPadded(float value)

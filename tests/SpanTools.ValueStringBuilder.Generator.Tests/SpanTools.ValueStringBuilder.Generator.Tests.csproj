@@ -21,35 +21,21 @@
   </ItemGroup>
 
   <ItemGroup Label="Test Matrix Excludes">
-    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict1"
-                              RootNamespace="MyNamespace"
-                              ValueStringBuilder_Namespace="MyNamespace"
-                              Reason="Cannot have both namespaces active." />
-    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict2"
-                              RootNamespace="MyNamespace"
-                              ValueStringBuilder_Namespace="global::"
-                              Reason="Cannot have both namespaces active." />
-    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict3"
-                              RootNamespace="MyNamespace"
-                              ValueStringBuilder_Namespace="Lucene.Net.Text"
-                              Reason="Cannot have both namespaces active." />
+    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict1" RootNamespace="MyNamespace" ValueStringBuilder_Namespace="MyNamespace" Reason="Cannot have both namespaces active." />
+    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict2" RootNamespace="MyNamespace" ValueStringBuilder_Namespace="global::" Reason="Cannot have both namespaces active." />
+    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict3" RootNamespace="MyNamespace" ValueStringBuilder_Namespace="Lucene.Net.Text" Reason="Cannot have both namespaces active." />
     
-    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict4"
-                              RootNamespace="Lucene.Net.Text"
-                              ValueStringBuilder_Namespace="MyNamespace"
-                              Reason="Cannot have both namespaces active." />
-    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict6"
-                              RootNamespace="Lucene.Net.Text"
-                              ValueStringBuilder_Namespace="global::"
-                              Reason="Cannot have both namespaces active." />
-    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict6"
-                              RootNamespace="Lucene.Net.Text"
-                              ValueStringBuilder_Namespace="Lucene.Net.Text"
-                              Reason="Cannot have both namespaces active." />
+    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict4" RootNamespace="Lucene.Net.Text" ValueStringBuilder_Namespace="MyNamespace" Reason="Cannot have both namespaces active." />
+    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict6" RootNamespace="Lucene.Net.Text" ValueStringBuilder_Namespace="global::" Reason="Cannot have both namespaces active." />
+    <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict6" RootNamespace="Lucene.Net.Text" ValueStringBuilder_Namespace="Lucene.Net.Text" Reason="Cannot have both namespaces active." />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="J2N" VersionOverride="2.2.0-alpha-0026" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SpanTools.TestUtilities\SpanTools.TestUtilities.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -89,8 +75,7 @@
   <ItemGroup Condition="Exists('$(_PackageVersionPropsFilePath)')">
     <Compile Remove="TestPackageNotBuilt.cs" />
   </ItemGroup>
-
-
+  
   <Target Name="SetDefineConstants" BeforeTargets="CoreCompile">
     
      <!-- Get explicit Version from PackageReference metadata -->

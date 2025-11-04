@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eng", "eng\eng.folderproj",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpanTools.ValueStringBuilder.Generator.Tests", "tests\SpanTools.ValueStringBuilder.Generator.Tests\SpanTools.ValueStringBuilder.Generator.Tests.csproj", "{79ACF70F-ED50-4715-9B08-54C915628147}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpanTools.TestUtilities", "tests\SpanTools.TestUtilities\SpanTools.TestUtilities.csproj", "{7731720F-D606-49F5-BBF2-F00F26154163}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,10 @@ Global
 		{79ACF70F-ED50-4715-9B08-54C915628147}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79ACF70F-ED50-4715-9B08-54C915628147}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79ACF70F-ED50-4715-9B08-54C915628147}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7731720F-D606-49F5-BBF2-F00F26154163}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7731720F-D606-49F5-BBF2-F00F26154163}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7731720F-D606-49F5-BBF2-F00F26154163}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7731720F-D606-49F5-BBF2-F00F26154163}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -77,6 +83,7 @@ Global
 		{DA6B7963-4A1E-4A38-8F0B-A7F6A675F48A} = {91204677-A345-4C96-9678-2376882FED6E}
 		{22B7498F-DAE0-42AE-904D-59E6EC1F39D3} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{79ACF70F-ED50-4715-9B08-54C915628147} = {91204677-A345-4C96-9678-2376882FED6E}
+		{7731720F-D606-49F5-BBF2-F00F26154163} = {91204677-A345-4C96-9678-2376882FED6E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {01980438-C9CA-4EDC-B135-95B4803EA232}
