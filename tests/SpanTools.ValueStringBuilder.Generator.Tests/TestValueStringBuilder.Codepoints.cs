@@ -16,6 +16,8 @@ namespace SpanTools.Generator.Tests
 {
     public partial class ValueStringBuilderTests
     {
+#if FEATURE_J2N_2_2_OR_GREATER
+
         [Fact]
         public virtual void TestAppendCodePointBmp()
         {
@@ -196,5 +198,6 @@ namespace SpanTools.Generator.Tests
             {
             }
         }
+#endif
     }
 }
