@@ -60,7 +60,7 @@
           var allOptions = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
           foreach (var opt in Options)
               allOptions[opt.ItemSpec] = (opt.GetMetadata("Values") ?? "")
-                  .Split(new[]{';'}, StringSplitOptions.RemoveEmptyEntries);
+                  .Split(new[]{';'}, StringSplitOptions.None);
 
           var validKeys = new HashSet<string>(allOptions.Keys, StringComparer.OrdinalIgnoreCase);
 
