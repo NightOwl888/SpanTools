@@ -26,6 +26,7 @@
     </PropertyGroup>
     <GenerateCartesianMatrix Options="@(MatrixOption)"
                              Excludes="@(ExcludeMatrixCombination)"
+                             PackageRefs="@(MatrixPackageReference)"
                              OutputDir="$(MatrixOutputDir)"
                              IDPrefix="$(MatrixId)" />
 
@@ -37,6 +38,7 @@
       <IDPrefix ParameterType="System.String" Required="true" />
       <Options ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
       <Excludes ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="false" />
+      <PackageRefs ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="false" />
       <OutputDir ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
@@ -48,86 +50,171 @@
       <Using Namespace="System.Text" />
       <Code Type="Fragment" Language="cs">
         <![CDATA[
+          // Exclude Metadata
+          var excludeMetadataKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+          {
+              "Filename", "FullPath", "RootDir", "Directory", "Identity", "DefiningProjectFullPath", "DefiningProjectDirectory", "DefiningProjectName", "DefiningProjectExtension"
+          };
+        
+          // Parse matrix options
           var allOptions = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
           foreach (var opt in Options)
-              allOptions[opt.ItemSpec] = (opt.GetMetadata("Values") ?? "").Split(new[]{';'}, StringSplitOptions.None);
+              allOptions[opt.ItemSpec] = (opt.GetMetadata("Values") ?? "")
+                  .Split(new[]{';'}, StringSplitOptions.RemoveEmptyEntries);
 
-          // Build a lookup of valid option keys (case-insensitive)
           var validKeys = new HashSet<string>(allOptions.Keys, StringComparer.OrdinalIgnoreCase);
 
+          // Parse excludes
           var excludes = new List<Dictionary<string,string>>();
-          foreach (var ex in Excludes ?? Array.Empty<ITaskItem>())
-          {
-              var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-              foreach (string name in ex.MetadataNames)
-              {
-                  // Only include metadata names that are valid matrix option keys
-                  if (!validKeys.Contains(name))
-                      continue;
-
+          foreach (var ex in Excludes ?? Array.Empty<ITaskItem>()) {
+              var dict = new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
+              foreach (string name in ex.MetadataNames) {
+                  if (!validKeys.Contains(name)) continue;
                   var value = ex.GetMetadata(name);
-                  if (!string.IsNullOrEmpty(value))
-                      dict[name] = value;
+                  if (!string.IsNullOrEmpty(value)) dict[name] = value;
               }
-
-              if (dict.Count > 0)
-                  excludes.Add(dict);
+              if (dict.Count > 0) excludes.Add(dict);
           }
-          
+
+          // Parse MatrixPackageReference items
+          var packageDefs = new List<(string Option,string PackageId,string[] WhenValues,string[] Versions,Dictionary<string,string> Metadata)>();
+          foreach (var pkg in PackageRefs ?? Array.Empty<ITaskItem>()) {
+              var option = pkg.ItemSpec;
+              var id = pkg.GetMetadata("PackageId");
+              var whenValues = (pkg.GetMetadata("WhenValue") ?? "").Split(new[]{';'}, StringSplitOptions.RemoveEmptyEntries);
+              var versions = (pkg.GetMetadata("Versions") ?? "").Split(new[]{';'}, StringSplitOptions.RemoveEmptyEntries);
+              if (string.IsNullOrEmpty(option) || string.IsNullOrEmpty(id)) continue;
+
+              var meta = new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
+              foreach (string m in pkg.MetadataNames) {
+                  var v = pkg.GetMetadata(m);
+                  if (!string.IsNullOrEmpty(v) && m != "PackageId" && m != "WhenValue" && m != "Versions")
+                      meta[m] = v;
+              }
+              packageDefs.Add((option,id,whenValues,versions,meta));
+          }
+
+          // Cartesian product of matrix options
           var keys = allOptions.Keys.ToList();
           var combos = new List<Dictionary<string,string>>();
-          void Recurse(int i, Dictionary<string,string> cur)
-          {
-              if (i == keys.Count)
-              {
-                  // Check exclusions
-                  foreach (var ex in excludes)
-                  {
-                      bool match = ex.All(kv => 
-                        cur.TryGetValue(kv.Key, out var val) &&
-                        string.Equals(val, kv.Value, StringComparison.OrdinalIgnoreCase));
-                      if (match)
-                      {
-                          Log.LogMessage(MessageImportance.High, $"Excluded combination: {string.Join(", ", cur.Select(kv => $"{kv.Key}={kv.Value}"))}");
-                          return;
-                      }
+          void Recurse(int i, Dictionary<string,string> cur) {
+              if (i == keys.Count) {
+                  foreach (var ex in excludes) {
+                      bool match = ex.All(kv => cur.TryGetValue(kv.Key, out var val) &&
+                          string.Equals(val, kv.Value, StringComparison.OrdinalIgnoreCase));
+                      if (match) return; // exclude combo
                   }
-                  combos.Add(new Dictionary<string,string>(cur));
+                  combos.Add(new Dictionary<string,string>(cur, StringComparer.OrdinalIgnoreCase));
                   return;
               }
               var key = keys[i];
-              foreach (var val in allOptions[key])
-              {
+              foreach (var val in allOptions[key]) {
                   cur[key] = val;
                   Recurse(i + 1, cur);
               }
           }
           Recurse(0, new Dictionary<string,string>());
 
+          string MakeSafeId(string s) {
+              var sb = new StringBuilder(s.Length);
+              foreach (var c in s) sb.Append(char.IsLetterOrDigit(c) ? c : '_');
+              return sb.ToString();
+          }
+
           Directory.CreateDirectory(OutputDir);
 
-          foreach (var combo in combos)
-          {
-              var idRaw = string.Join(";", combo.OrderBy(k => k.Key).Select(kv => $"{kv.Key}={kv.Value}"));
-              string hash;
-              using (var sha1 = System.Security.Cryptography.SHA1.Create())
-              {
-                  var bytes = System.Text.Encoding.UTF8.GetBytes(idRaw);
-                  var hashBytes = sha1.ComputeHash(bytes);
-                  hash = BitConverter.ToString(hashBytes).Replace("-", "").Substring(0, 8);
-              }
-              var id = $"{IDPrefix}_{hash}";
-              var file = Path.Combine(OutputDir, $"{id}.props");
+          foreach (var combo in combos) {
 
-              using var writer = new StreamWriter(file);
-              writer.WriteLine("<Project>");
-              writer.WriteLine("  <PropertyGroup>");
-              foreach (var kv in combo)
-                  writer.WriteLine($"    <{kv.Key}>{kv.Value}</{kv.Key}>");
-              writer.WriteLine($"    <MatrixId>{id}</MatrixId>");
-              writer.WriteLine("  </PropertyGroup>");
-              writer.WriteLine("</Project>");
+              // Start with one variant
+              var variants = new List<(Dictionary<string,string> Combo, Dictionary<string,(string Version,Dictionary<string,string> Metadata)> Packages)>
+              {
+                  (new Dictionary<string,string>(combo, StringComparer.OrdinalIgnoreCase),
+                   new Dictionary<string,(string,Dictionary<string,string>)>(StringComparer.OrdinalIgnoreCase))
+              };
+
+              // Expand variants based on package references
+              foreach (var pkg in packageDefs)
+              {
+                  if (!combo.TryGetValue(pkg.Option, out var optVal))
+                      continue;
+
+                  if (!pkg.WhenValues.Any(wv => string.Equals(wv, optVal, StringComparison.OrdinalIgnoreCase)))
+                      continue;
+
+                  bool hasExclude = pkg.Versions.Any(v => string.Equals(v, "Exclude", StringComparison.OrdinalIgnoreCase));
+                  var realVersions = pkg.Versions
+                      .Where(v => !string.Equals(v, "Exclude", StringComparison.OrdinalIgnoreCase))
+                      .ToArray();
+
+                  var newVariants = new List<(Dictionary<string,string>, Dictionary<string,(string,Dictionary<string,string>)>)>();
+
+                  foreach (var variant in variants)
+                  {
+                      // For each real version, add a variant with the package
+                      foreach (var ver in realVersions)
+                      {
+                          var copyCombo = new Dictionary<string,string>(variant.Combo, StringComparer.OrdinalIgnoreCase);
+                          var copyPkgs = new Dictionary<string,(string,Dictionary<string,string>)>(variant.Packages, StringComparer.OrdinalIgnoreCase);
+                          copyPkgs[pkg.PackageId] = (ver, pkg.Metadata);
+                          newVariants.Add((copyCombo, copyPkgs));
+                      }
+
+                      // Add an "Exclude" variant with no package if requested
+                      if (hasExclude)
+                      {
+                          var copyCombo = new Dictionary<string,string>(variant.Combo, StringComparer.OrdinalIgnoreCase);
+                          var copyPkgs = new Dictionary<string,(string,Dictionary<string,string>)>(variant.Packages, StringComparer.OrdinalIgnoreCase);
+                          newVariants.Add((copyCombo, copyPkgs));
+                      }
+                  }
+
+                  variants = newVariants;
+              }
+
+              // Write each variant to file
+              foreach (var variant in variants)
+              {
+                  var idRaw = string.Join(";", variant.Combo.OrderBy(k => k.Key).Select(kv => $"{kv.Key}={kv.Value}")) +
+                              string.Join(";", variant.Packages.Select(p => $"{p.Key}={p.Value.Version}"));
+                  var bytes = Encoding.UTF8.GetBytes(idRaw);
+                  var hash = BitConverter.ToString(SHA1.Create().ComputeHash(bytes)).Replace("-", "").Substring(0, 8);
+                  var id = $"{IDPrefix}_{hash}";
+                  var file = Path.Combine(OutputDir, $"{id}.props");
+
+                  using var writer = new StreamWriter(file);
+                  writer.WriteLine("<Project>");
+                  writer.WriteLine("  <PropertyGroup>");
+                  foreach (var kv in variant.Combo.OrderBy(k => k.Key))
+                      writer.WriteLine($"    <{kv.Key}>{System.Security.SecurityElement.Escape(kv.Value)}</{kv.Key}>");
+
+                  // Write package version properties
+                  foreach (var pkg in variant.Packages)
+                      writer.WriteLine($"    <PackageReference_{MakeSafeId(pkg.Key)}_Version>{pkg.Value.Version}</PackageReference_{MakeSafeId(pkg.Key)}_Version>");
+
+                  writer.WriteLine($"    <MatrixId>{id}</MatrixId>");
+                  writer.WriteLine("  </PropertyGroup>");
+
+                  // Write PackageReference item group if any
+                  if (variant.Packages.Count > 0)
+                  {
+                      writer.WriteLine("  <ItemGroup>");
+                      foreach (var pkg in variant.Packages)
+                      {
+                          var idEsc = System.Security.SecurityElement.Escape(pkg.Key);
+                          var verEsc = System.Security.SecurityElement.Escape(pkg.Value.Version);
+                          writer.Write($"    <PackageReference Include=\"{idEsc}\" Version=\"{verEsc}\"");
+                          foreach (var kv in pkg.Value.Metadata)
+                          {
+                              if (!excludeMetadataKeys.Contains(kv.Key))
+                                  writer.Write($" {kv.Key}=\"{System.Security.SecurityElement.Escape(kv.Value)}\"");
+                          }
+                          writer.WriteLine(" />");
+                      }
+                      writer.WriteLine("  </ItemGroup>");
+                  }
+
+                  writer.WriteLine("</Project>");
+              }
           }
         ]]>
       </Code>
