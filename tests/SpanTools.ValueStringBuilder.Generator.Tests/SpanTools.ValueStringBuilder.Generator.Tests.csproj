@@ -12,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup Label="Test Matrix">
+    <MatrixOption Include="AllowUnsafeBlocks" Values="true;false" />
     <MatrixOption Include="RootNamespace" Values="MyNamespace;Lucene.Net.Text" />
     <MatrixOption Include="ValueStringBuilder_Namespace" Values="MyNamespace;global::;Lucene.Net.Text;" />
 
