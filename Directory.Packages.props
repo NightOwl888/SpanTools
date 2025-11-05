@@ -7,6 +7,7 @@
   <PropertyGroup Label="Shared NuGet Package Reference Versions">
     <!-- NOTE: We must target the lowest practical version in order to support older SDKs. 4.6.0 should be low enough to support .NET 6 SDKs.
         Newer SDKs will upgrade this reference automatically. -->
+    <NuGetVersioningPackageVersion>6.14.0</NuGetVersioningPackageVersion>
     <RoslynAnalyzerPackageVersion>4.6.0</RoslynAnalyzerPackageVersion>
     <XunitRunnerVisualStudioPackageReferenceVersion>3.1.5</XunitRunnerVisualStudioPackageReferenceVersion>
     <XunitRunnerVisualStudioPackageReferenceVersion Condition=" '$(TargetFramework)' == 'net47' Or '$(TargetFramework)' == 'net471' Or '$(TargetFramework)' == 'net6.0' ">2.8.2</XunitRunnerVisualStudioPackageReferenceVersion>
@@ -15,7 +16,7 @@
   <ItemGroup Label="NuGet Package Reference Versions">
     <PackageVersion Include="J2N" Version="2.1.0" />
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.7.115" />
-    <PackageVersion Include="NuGet.Versioning" Version="6.14.0" />
+    <PackageVersion Include="NuGet.Versioning" Version="$(NuGetVersioningPackageVersion)" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioPackageReferenceVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="$(RoslynAnalyzerPackageVersion)" />

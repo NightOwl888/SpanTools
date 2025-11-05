@@ -21,8 +21,13 @@
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="NuGet.Versioning" PrivateAssets="All" GeneratePathProperty="true" />
+    <PackageReference Include="NuGet.Versioning" PrivateAssets="All" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <NuGetPackageRoot Condition=" '$(NUGET_PACKAGES)' != '' ">$(NUGET_PACKAGES)</NuGetPackageRoot>
+    <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">$(UserProfile)\.nuget\packages\</NuGetPackageRoot>
+  </PropertyGroup>
 
   <Target Name="GenerateMatrix">
     <PropertyGroup>
@@ -46,7 +51,7 @@
       <OutputDir ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
-      <Reference Include="$(PkgNuGet_Versioning)/lib/netstandard2.0/NuGet.Versioning.dll" />
+      <Reference Include="$(NuGetPackageRoot)/nuget.versioning/$(NuGetVersioningPackageVersion)/lib/netstandard2.0/NuGet.Versioning.dll" />
       <Using Namespace="NuGet.Versioning" />
       <Using Namespace="System" />
       <Using Namespace="System.IO" />
