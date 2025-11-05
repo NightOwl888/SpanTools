@@ -20,6 +20,10 @@
     <Message Text="$(OutputTargetFrameworks)" Importance="high"/>
   </Target>
 
+  <ItemGroup>
+    <PackageReference Include="NuGet.Versioning" PrivateAssets="All" GeneratePathProperty="true" />
+  </ItemGroup>
+
   <Target Name="GenerateMatrix">
     <PropertyGroup>
       <MatrixOutputDir>$(RepositoryRoot)_artifacts\TestMatrix\$(MatrixId)</MatrixOutputDir>
@@ -42,6 +46,8 @@
       <OutputDir ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
+      <Reference Include="$(PkgNuGet_Versioning)/lib/netstandard2.0/NuGet.Versioning.dll" />
+      <Using Namespace="NuGet.Versioning" />
       <Using Namespace="System" />
       <Using Namespace="System.IO" />
       <Using Namespace="System.Collections.Generic" />
@@ -120,6 +126,20 @@
               foreach (var c in s) sb.Append(char.IsLetterOrDigit(c) ? c : '_');
               return sb.ToString();
           }
+          
+          string ResolveNuGetVersion(string v1, string v2)
+          {
+              if (string.IsNullOrEmpty(v1)) return v2;
+              if (string.IsNullOrEmpty(v2)) return v1;
+
+              if (!NuGetVersion.TryParse(v1, out var n1))
+                  n1 = new NuGetVersion(v1);
+              if (!NuGetVersion.TryParse(v2, out var n2))
+                  n2 = new NuGetVersion(v2);
+
+              return (n1.CompareTo(n2) >= 0 ? n1 : n2).ToNormalizedString();
+          }
+
 
           Directory.CreateDirectory(OutputDir);
 
@@ -154,8 +174,17 @@
                       foreach (var ver in realVersions)
                       {
                           var copyCombo = new Dictionary<string,string>(variant.Combo, StringComparer.OrdinalIgnoreCase);
-                          var copyPkgs = new Dictionary<string,(string,Dictionary<string,string>)>(variant.Packages, StringComparer.OrdinalIgnoreCase);
-                          copyPkgs[pkg.PackageId] = (ver, pkg.Metadata);
+                          var copyPkgs = new Dictionary<string,(string Version,Dictionary<string,string> Metadata)>(variant.Packages, StringComparer.OrdinalIgnoreCase);
+                          if (copyPkgs.TryGetValue(pkg.PackageId, out var existing))
+                          {
+                              // Combine multiple versions for same PackageId
+                              var mergedVersion = ResolveNuGetVersion(existing.Version, ver);
+                              copyPkgs[pkg.PackageId] = (mergedVersion, pkg.Metadata);
+                          }
+                          else
+                          {
+                              copyPkgs[pkg.PackageId] = (ver, pkg.Metadata);
+                          }
                           newVariants.Add((copyCombo, copyPkgs));
                       }
 
