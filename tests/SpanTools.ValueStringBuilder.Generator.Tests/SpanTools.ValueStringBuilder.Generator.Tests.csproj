@@ -13,23 +13,30 @@
 
   <ItemGroup Label="Test Matrix">
     <MatrixOption Include="AllowUnsafeBlocks" Values="true;false" />
-    <MatrixOption Include="RootNamespace" Values="MyNamespace;Lucene.Net.Text" />
-    <MatrixOption Include="ValueStringBuilder_Namespace" Values="MyNamespace;global::;Lucene.Net.Text;" />
+    <!--<MatrixOption Include="RootNamespace" Values="MyNamespace;Lucene.Net.Text" />
+    <MatrixOption Include="ValueStringBuilder_Namespace" Values="MyNamespace;global::;Lucene.Net.Text;" />-->
+    <MatrixOption Include="ValueStringBuilder_Namespace" Values="Lucene.Net.Text" />
 
-    <MatrixOption Include="ValueStringBuilder_IncludeAsMemoryMethods" Values="true;false" />
-    <MatrixOption Include="ValueStringBuilder_IncludeMaxLengthTracking" Values="true;false" />
+    <!--<MatrixOption Include="ValueStringBuilder_IncludeAsMemoryMethods" Values="true;false" />
+    <MatrixOption Include="ValueStringBuilder_IncludeMaxLengthTracking" Values="true;false" />-->
     <MatrixOption Include="ValueStringBuilder_IncludeCodepointSupport" Values="true;false" />
+    <MatrixOption Include="ValueStringBuilder_UseJavaStyleFormatting" Values="true;false" />
   </ItemGroup>
 
   <ItemGroup Label="Test Matrix Packages">
-    <MatrixPackageReference Include="ValueStringBuilder_IncludeCodepointSupport">
+    <MatrixPackageReference Include="ValueStringBuilder_UseJavaStyleFormatting">
       <WhenValue>true</WhenValue>
       <PackageId>J2N</PackageId>
       <Versions>2.2.0-alpha-0026</Versions>
     </MatrixPackageReference>
+    <MatrixPackageReference Include="ValueStringBuilder_IncludeCodepointSupport">
+      <WhenValue>true</WhenValue>
+      <PackageId>J2N</PackageId>
+      <Versions>2.1.0</Versions>
+    </MatrixPackageReference>
   </ItemGroup>
 
-  <ItemGroup Label="Test Matrix Excludes">
+  <!--<ItemGroup Label="Test Matrix Excludes">
     <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict1" RootNamespace="MyNamespace" ValueStringBuilder_Namespace="MyNamespace" Reason="Cannot have both namespaces active." />
     <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict2" RootNamespace="MyNamespace" ValueStringBuilder_Namespace="global::" Reason="Cannot have both namespaces active." />
     <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict3" RootNamespace="MyNamespace" ValueStringBuilder_Namespace="Lucene.Net.Text" Reason="Cannot have both namespaces active." />
@@ -37,7 +44,7 @@
     <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict4" RootNamespace="Lucene.Net.Text" ValueStringBuilder_Namespace="MyNamespace" Reason="Cannot have both namespaces active." />
     <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict6" RootNamespace="Lucene.Net.Text" ValueStringBuilder_Namespace="global::" Reason="Cannot have both namespaces active." />
     <ExcludeMatrixCombination Include="RootVsValueNamespaceConflict6" RootNamespace="Lucene.Net.Text" ValueStringBuilder_Namespace="Lucene.Net.Text" Reason="Cannot have both namespaces active." />
-  </ItemGroup>
+  </ItemGroup>-->
 
   <ItemGroup>
     <ProjectReference Include="..\SpanTools.TestUtilities\SpanTools.TestUtilities.csproj" />
@@ -90,7 +97,6 @@
     </ItemGroup>
   
     <PropertyGroup Label="Compilation Options">
-      <!--<_J2N_PkgRef_Version_2 Condition=" '%(_J2N_PkgRef_2.Version)' != ''">%(_J2N_PkgRef_2.Version)</_J2N_PkgRef_Version_2>-->
       <__J2N_PkgRef_Version>@(_J2N_PkgRef->'%(Version)')</__J2N_PkgRef_Version>
 
       <_J2N_Version_Raw_Trimmed Condition="'$(__J2N_PkgRef_Version)' != ''">$(__J2N_PkgRef_Version.Trim())</_J2N_Version_Raw_Trimmed>
