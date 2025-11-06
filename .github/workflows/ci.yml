@@ -192,7 +192,7 @@ jobs:
 
                   Write-Host "Generating matrix in $projFile..."
 
-                  & dotnet msbuild "$projFile" -target:GenerateMatrix -p:Configuration=Release
+                  & dotnet build "$projFile" -target:GenerateMatrix -p:Configuration=Release
 
                   $matrixDir = Join-Path $env:GITHUB_WORKSPACE "_artifacts/TestMatrix/$($_.BaseName)"
                   $matrixFiles = Get-ChildItem -Path $matrixDir -Filter '*.props'
