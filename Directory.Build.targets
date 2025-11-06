@@ -50,7 +50,7 @@
       <OutputDir ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
-      <Reference Include="$(NuGetPackageRoot)/nuget.versioning/$(NuGetVersioningPackageVersion)/lib/netstandard2.0/NuGet.Versioning.dll" />
+      <Reference Include="$([MSBuild]::Escape('$(NuGetPackageRoot)/nuget.versioning/$(NuGetVersioningPackageVersion)/lib/netstandard2.0/NuGet.Versioning.dll'))" />
       <Using Namespace="NuGet.Versioning" />
       <Using Namespace="System" />
       <Using Namespace="System.IO" />
