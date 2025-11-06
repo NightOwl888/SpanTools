@@ -32,6 +32,11 @@
     <PropertyGroup>
       <MatrixOutputDir>$(RepositoryRoot)_artifacts\TestMatrix\$(MatrixId)</MatrixOutputDir>
     </PropertyGroup>
+
+    <Message Text="NuGetPackageRoot = '$(NuGetPackageRoot)'" Importance="High" />
+    <Message Text="NUGET_PACKAGES (env) = '$(NUGET_PACKAGES)'" Importance="High" />
+    <Message Text="Resolved NuGet.Versioning DLL: $([System.IO.Path]::Combine('$(NuGetPackageRoot)', 'nuget.versioning', '$(NuGetVersioningPackageVersion)', 'lib', 'net6.0', 'NuGet.Versioning.dll'))" Importance="High" />
+
     <GenerateCartesianMatrix Options="@(MatrixOption)"
                              Excludes="@(ExcludeMatrixCombination)"
                              PackageRefs="@(MatrixPackageReference)"
@@ -39,6 +44,7 @@
                              IDPrefix="$(MatrixId)" />
 
     <Message Importance="high" Text="Generated test matrix at $(MatrixOutputDir)" />
+
   </Target>
 
   <UsingTask TaskName="GenerateCartesianMatrix" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
@@ -50,7 +56,7 @@
       <OutputDir ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
-      <Reference Include="$([MSBuild]::Escape('$(NuGetPackageRoot)/nuget.versioning/$(NuGetVersioningPackageVersion)/lib/netstandard2.0/NuGet.Versioning.dll'))" />
+      <Reference Include="$([System.IO.Path]::Combine('$(NuGetPackageRoot)', 'nuget.versioning', '$(NuGetVersioningPackageVersion)', 'lib', 'net6.0', 'NuGet.Versioning.dll'))" />
       <Using Namespace="NuGet.Versioning" />
       <Using Namespace="System" />
       <Using Namespace="System.IO" />
