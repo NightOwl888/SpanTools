@@ -30,7 +30,7 @@
 
   <Target Name="GenerateMatrix">
     <PropertyGroup>
-      <MatrixOutputDir>$(RepositoryRoot)_artifacts\TestMatrix\$(MatrixId)</MatrixOutputDir>
+      <MatrixOutputDir Condition=" '$(MatrixOutputDir)' == '' ">$(RepositoryRoot)_artifacts\TestMatrix\$(MatrixId)</MatrixOutputDir>
     </PropertyGroup>
 
     <Message Text="NuGetPackageRoot = '$(NuGetPackageRoot)'" Importance="High" />
