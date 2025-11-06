@@ -87,9 +87,6 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    env:
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-
     steps:
       - name: Checkout Source
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -107,10 +104,12 @@ jobs:
           $coverageReportDir = "$testResultsRootDir\coverage-report"
           New-Item -ItemType Directory -Force -Path $dir
           New-Item -ItemType Directory -Force -Path "$dir\dotnet"
+          New-Item -ItemType Directory -Force -Path "$dir\.nuget\packages"
           New-Item -ItemType Directory -Force -Path "$dir\work"
           New-Item -ItemType Directory -Force -Path "$testResultsRootDir"
           New-Item -ItemType Directory -Force -Path "$coverageReportDir"
           Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir\dotnet"
+          Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=$dir\.nuget\packages"
           Add-Content $env:GITHUB_ENV "`nWORKPATH=$dir\work"
           Add-Content $env:GITHUB_ENV "`nTEST_RESULTS_ROOT_DIR=$testResultsRootDir"
           Add-Content $env:GITHUB_ENV "`nCOVERAGE_REPORT_DIR=$coverageReportDir"
@@ -125,10 +124,12 @@ jobs:
           $coverageReportDir = "$testResultsRootDir/coverage-report"
           New-Item -ItemType Directory -Force -Path $dir
           New-Item -ItemType Directory -Force -Path "$dir/dotnet"
+          New-Item -ItemType Directory -Force -Path "$dir/.nuget/packages"
           New-Item -ItemType Directory -Force -Path "$dir/work"
           New-Item -ItemType Directory -Force -Path "$testResultsRootDir"
           New-Item -ItemType Directory -Force -Path "$coverageReportDir"
           Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir/dotnet"
+          Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=$dir/.nuget/packages"
           Add-Content $env:GITHUB_ENV "`nWORKPATH=$dir/work"
           Add-Content $env:GITHUB_ENV "`nTEST_RESULTS_ROOT_DIR=$testResultsRootDir"
           Add-Content $env:GITHUB_ENV "`nCOVERAGE_REPORT_DIR=$coverageReportDir"
