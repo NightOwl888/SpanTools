@@ -195,7 +195,14 @@ jobs:
 
                   #& dotnet build "$projFile" -target:GenerateMatrix -p:Configuration=Release
                   #& "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\msbuild.exe" "$projFile" /t:GenerateMatrix /p:Configuration=Release
-                  & "$env:ProgramFiles(x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe" "$projFile" /t:GenerateMatrix /p:Configuration=Release
+                  #& "$env:ProgramFiles(x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe" "$projFile" /t:GenerateMatrix /p:Configuration=Release
+
+                  $msbuild = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" `
+                      -latest -products * -requires Microsoft.Component.MSBuild `
+                      -find MSBuild\**\Bin\MSBuild.exe
+
+                  Write-Host "Using MSBuild: $msbuild"
+                  & $msbuild "$projFile" /t:GenerateMatrix /p:Configuration=Release
 
 
                   $matrixDir = Join-Path $env:GITHUB_WORKSPACE "_artifacts/TestMatrix/$($_.BaseName)"
