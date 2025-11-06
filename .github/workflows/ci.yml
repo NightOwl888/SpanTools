@@ -247,7 +247,6 @@ jobs:
                           "--blame-hang-timeout", "10m",
                           "--blame-hang-dump-type", "mini",
                           "--blame-crash",
-                          "--no-restore",
                           "-p:SkipPackageBuild=true",
                           "-p:GeneratePackageOnBuild=false",
                           "-p:ImportPropsFile=$propsFile"
