@@ -154,6 +154,9 @@ jobs:
         shell: pwsh
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
+      - name: Restore
+        run: dotnet restore
+
       - name: Run Tests
         shell: pwsh
         run: |
