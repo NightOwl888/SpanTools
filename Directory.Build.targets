@@ -241,7 +241,7 @@
                       {
                           var idEsc = System.Security.SecurityElement.Escape(pkg.Key);
                           var verEsc = System.Security.SecurityElement.Escape(pkg.Value.Version);
-                          writer.Write($"    <PackageReference Include=\"{idEsc}\" Version=\"{verEsc}\"");
+                          writer.Write($"    <PackageReference Include=\"{idEsc}\" VersionOverride=\"{verEsc}\"");
                           foreach (var kv in pkg.Value.Metadata)
                           {
                               if (!excludeMetadataKeys.Contains(kv.Key))
