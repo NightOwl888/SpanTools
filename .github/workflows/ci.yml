@@ -157,6 +157,21 @@ jobs:
       - name: Restore
         run: dotnet restore
 
+      - name: Debug NuGet package cache
+        shell: bash
+        run: |
+          echo "NUGET_PACKAGES: ${NUGET_PACKAGES:-not set}"
+          echo "HOME: $HOME"
+          echo "USERPROFILE: $USERPROFILE"
+          echo "NuGet default cache (global-packages):"
+          dotnet nuget locals global-packages --list || true
+          echo
+          echo "Listing expected NuGet.Versioning package folders..."
+          find "${NUGET_PACKAGES:-$HOME/.nuget/packages}" -maxdepth 2 -type d -iname "nuget.versioning" || true
+          echo
+          echo "Listing any DLLs under that path:"
+          find "${NUGET_PACKAGES:-$HOME/.nuget/packages}" -path "*/nuget.versioning/*" -name "*.dll" || true
+
       - name: Run Tests
         shell: pwsh
         run: |
