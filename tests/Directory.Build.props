@@ -1,9 +1,4 @@
 ﻿<Project>
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
-  <PropertyGroup>
-    <ImportPropsFile Condition=" '$(ImportPropsFile)' == '' ">$(MSBuildThisFileDirectory)DefaultConfig.props</ImportPropsFile>
-  </PropertyGroup>
-
-  <Import Project="$(ImportPropsFile)" Condition="'$(ImportPropsFile)' != '' And Exists('$(ImportPropsFile)')" />
 </Project>

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <RootNamespace Condition=" '$(ImportPropsFile)' == '' ">SpanTools.Generator.Tests</RootNamespace>
+    <RootNamespace>SpanTools.Generator.Tests</RootNamespace>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
@@ -47,13 +47,13 @@
   </ItemGroup>-->
 
   <ItemGroup>
-    <ProjectReference Include="..\SpanTools.TestUtilities\SpanTools.TestUtilities.csproj" />
+    <ProjectReference Include="..\..\SpanTools.TestUtilities\SpanTools.TestUtilities.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
     <!-- Detect if PackageOutputPath was passed explicitly on the command line -->
     <_IsPackageOutputPathOverridden>$([System.Text.RegularExpressions.Regex]::IsMatch('$(MSBuildCommandLineArgs)', '(?i)(?:^|[ ;])[-/]p:PackageOutputPath='))</_IsPackageOutputPathOverridden>
-    <_ArtifactsDirectory>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\_artifacts'))</_ArtifactsDirectory>
+    <_ArtifactsDirectory>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\_artifacts'))</_ArtifactsDirectory>
     <_NuGetPackageOutputPath>$(_ArtifactsDirectory)\NuGetPackages\$(Configuration)</_NuGetPackageOutputPath>
     <_NuGetPackageOutputPath Condition=" '$(_IsPackageOutputPathOverridden.ToLower())' == 'true' ">$(PackageOutputPath)</_NuGetPackageOutputPath>
     <_PackageVersionPropsFilePath>$(_NuGetPackageOutputPath)\SpanTools.ValueStringBuilder.Generator.Version.props</_PackageVersionPropsFilePath>
@@ -135,7 +135,7 @@
     <Message Importance="high" Text="Running NuGet Package Build..." />
 
     <!-- Build the project that produces the NuGet package -->
-    <MSBuild Projects="..\..\src\SpanTools.ValueStringBuilder.Generator.Package\SpanTools.ValueStringBuilder.Generator.Package.csproj" Targets="Restore;PrepareForBuild;Build" Properties="Configuration=$(Configuration)" />
+    <MSBuild Projects="..\..\..\src\SpanTools.ValueStringBuilder.Generator.Package\SpanTools.ValueStringBuilder.Generator.Package.csproj" Targets="Restore;PrepareForBuild;Build" Properties="Configuration=$(Configuration)" />
 
     <!-- Since we may be continually using the last build number (unless a commit occurred),
           we need to clear the project local NuGet cache. -->
