@@ -293,7 +293,6 @@ jobs:
                               --configuration Release `
                               --no-build `
                               --output "$matrixBinariesDirectory" `
-                              --arch "${{ matrix.arch }}" `
                               --verbosity normal `
                               -p:SkipPackageBuild=true `
                               -p:GeneratePackageOnBuild=false `
