@@ -137,7 +137,7 @@ jobs:
         shell: pwsh
         run: |
           $dir = "C:\w"
-          $matrixCombo = ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.tfm }}
+          $matrixCombo = "${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.tfm }}"
           $testResultsRootDir = "$dir\work\test-results\$matrixCombo"
           $testBinariesRootDir = "$dir\work\test-binaries\$matrixCombo"
           $coverageReportDir = "$testResultsRootDir\coverage-report"
@@ -159,7 +159,7 @@ jobs:
         shell: pwsh
         run: |
           $dir = "$env:RUNNER_TEMP/w"
-          $matrixCombo = ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.tfm }}
+          $matrixCombo = "${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.tfm }}"
           $testResultsRootDir = "$dir/work/test-results/$matrixCombo"
           $testBinariesRootDir = "$dir/work/test-binaries/$matrixCombo"
           $coverageReportDir = "$testResultsRootDir/coverage-report"
