@@ -2,6 +2,11 @@
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_test_assemblies:
+        description: "Publish test assemblies"
+        required: false
+        default: "false"
   push:
     branches:
       - main
@@ -117,6 +122,7 @@ jobs:
 
     env:
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+      PUBLISH_TEST_ASSEMBLIES: ${{ github.event.inputs.publish_test_assemblies || 'false' }}
 
     steps:
       - name: Checkout Source
@@ -131,16 +137,20 @@ jobs:
         shell: pwsh
         run: |
           $dir = "C:\w"
-          $testResultsRootDir = "$dir\work\test-results\${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.tfm }}"
+          $matrixCombo = ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.tfm }}
+          $testResultsRootDir = "$dir\work\test-results\$matrixCombo"
+          $testBinariesRootDir = "$dir\work\test-binaries\$matrixCombo"
           $coverageReportDir = "$testResultsRootDir\coverage-report"
           New-Item -ItemType Directory -Force -Path $dir
           New-Item -ItemType Directory -Force -Path "$dir\dotnet"
           New-Item -ItemType Directory -Force -Path "$dir\work"
           New-Item -ItemType Directory -Force -Path "$testResultsRootDir"
+          New-Item -ItemType Directory -Force -Path "$testBinariesRootDir"
           New-Item -ItemType Directory -Force -Path "$coverageReportDir"
           Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir\dotnet"
           Add-Content $env:GITHUB_ENV "`nWORKPATH=$dir\work"
           Add-Content $env:GITHUB_ENV "`nTEST_RESULTS_ROOT_DIR=$testResultsRootDir"
+          Add-Content $env:GITHUB_ENV "`nTEST_BINARIES_ROOT_DIR=$testBinariesRootDir"
           Add-Content $env:GITHUB_ENV "`nCOVERAGE_REPORT_DIR=$coverageReportDir"
           Add-Content $env:GITHUB_PATH "`n$($env:USERPROFILE)\.dotnet\tools"
 
@@ -149,16 +159,20 @@ jobs:
         shell: pwsh
         run: |
           $dir = "$env:RUNNER_TEMP/w"
-          $testResultsRootDir = "$dir/work/test-results/${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.tfm }}"
+          $matrixCombo = ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.tfm }}
+          $testResultsRootDir = "$dir/work/test-results/$matrixCombo"
+          $testBinariesRootDir = "$dir/work/test-binaries/$matrixCombo"
           $coverageReportDir = "$testResultsRootDir/coverage-report"
           New-Item -ItemType Directory -Force -Path $dir
           New-Item -ItemType Directory -Force -Path "$dir/dotnet"
           New-Item -ItemType Directory -Force -Path "$dir/work"
           New-Item -ItemType Directory -Force -Path "$testResultsRootDir"
+          New-Item -ItemType Directory -Force -Path "$testBinariesRootDir"
           New-Item -ItemType Directory -Force -Path "$coverageReportDir"
           Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir/dotnet"
           Add-Content $env:GITHUB_ENV "`nWORKPATH=$dir/work"
           Add-Content $env:GITHUB_ENV "`nTEST_RESULTS_ROOT_DIR=$testResultsRootDir"
+          Add-Content $env:GITHUB_ENV "`nTEST_BINARIES_ROOT_DIR=$testBinariesRootDir"
           Add-Content $env:GITHUB_ENV "`nCOVERAGE_REPORT_DIR=$coverageReportDir"
           Add-Content $env:GITHUB_PATH "`n$($env:HOME)/.dotnet/tools"
 
@@ -267,6 +281,24 @@ jobs:
 
                           $results += $parsed
                       }
+
+                      if ($env:PUBLISH_TEST_ASSEMBLIES -eq 'true' -or $parsed.Crashed -or $parsed.FailedCount -gt 0) {
+                          $binariesDirectory = Join-Path $env:TEST_BINARIES_ROOT_DIR $_.BaseName
+                          $matrixBinariesDirectory = Join-Path $binariesDirectory $matrixId
+                          New-Item -ItemType Directory -Force -Path $matrixBinariesDirectory | Out-Null
+
+                          Write-Host "Publishing $projFile -> $matrixBinariesDirectory"
+                          & dotnet publish "$projFile" `
+                              --framework "${{matrix.tfm}}" `
+                              --configuration Release `
+                              --no-build `
+                              --output "$matrixBinariesDirectory" `
+                              --arch "${{ matrix.arch }}" `
+                              --verbosity normal `
+                              -p:SkipPackageBuild=true `
+                              -p:GeneratePackageOnBuild=false `
+                              -p:ImportPropsFile=$propsFile
+                      }
                   }
               }
           }
@@ -305,6 +337,13 @@ jobs:
         with:
           name: test-results-${{ matrix.os }}-${{ matrix.arch }}
           path: ${{ env.TEST_RESULTS_ROOT_DIR }}
+
+      - name: Upload Test Binaries
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: test-binaries-${{ matrix.os }}-${{ matrix.arch }}
+          path: ${{ env.TEST_BINARIES_ROOT_DIR }}
 
   # coverage:
   #   name: aggregate-coverage
