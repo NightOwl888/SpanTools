@@ -1,6 +1,7 @@
 ﻿<Project>
 
   <PropertyGroup>
+    <RootNamespace>Lucene.Net.Text</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 

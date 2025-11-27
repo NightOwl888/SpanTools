@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!--<PropertyGroup>
+    <ValueStringBuilder_Namespace>MyNamespace</ValueStringBuilder_Namespace>
+  </PropertyGroup>-->
+
+  <ItemGroup>
+    <AdditionalFiles Include="F:\Projects\SpanTools\tests\SpanTools.ValueStringBuilder.Generator\SpanTools.ValueStringBuilder.Generator.AssemblyUnderTest\obj\Debug\net8.0\ValueStringBuilder.Generator.props" />
+  </ItemGroup>
+
+  <Import Project="$(_PackageVersionPropsFilePath)" Condition="Exists('$(_PackageVersionPropsFilePath)')" />
+
+  <ItemGroup Condition="Exists('$(_PackageVersionPropsFilePath)')">
+    <PackageReference Include="SpanTools.ValueStringBuilder.Generator" VersionOverride="$(_SpanToolsPackageVersion)" />
+  </ItemGroup>
+
+  <Target Name="PrintOutStuff" BeforeTargets="PrepareForBuild">
+    <Message Importance="high" Text="_PackageVersionPropsFilePath: $(_PackageVersionPropsFilePath)" />
+  </Target>
+
+  <Target Name="EnsureNuGetPackageBuilt" BeforeTargets="PrepareForBuild" Condition="'$(DesignTimeBuild)' != 'true' And '$(SkipPackageBuild.ToLower())' != 'true' ">
+
+    <Message Importance="high" Text="Running NuGet Package Build..." />
+
+    <!-- Build the project that produces the NuGet package -->
+    <MSBuild Projects="..\..\..\src\SpanTools.ValueStringBuilder.Generator.Package\SpanTools.ValueStringBuilder.Generator.Package.csproj" Targets="Restore;PrepareForBuild;Build" Properties="Configuration=$(Configuration)" />
+
+    <!-- Since we may be continually using the last build number (unless a commit occurred),
+          we need to clear the project local NuGet cache. -->
+    <ForceDeleteDirectory DirectoryPath="$(_RestorePackagesPath)" />
+
+    <!-- Mark restore data as stale so MSBuild will re-run restore -->
+    <Delete Files="$(BaseIntermediateOutputPath)project.assets.json" ContinueOnError="true" />
+
+    <!-- Restore again, now that the .nupkg should exist -->
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Restore" Properties="Configuration=$(Configuration)" />
+  </Target>
+
+  <Target Name="CleanRestorePackagesPath" AfterTargets="Clean" Condition="'$(DesignTimeBuild)' != 'true' And '$(SkipPackageBuild.ToLower())' != 'true' ">
+    <ForceDeleteDirectory DirectoryPath="$(_RestorePackagesPath)" />
+  </Target>
+
+  <Target Name="PrintStuff" BeforeTargets="CoreCompile">
+
+    <PropertyGroup Label="Compilation Options">
+
+      <_EffectiveNamespace>$(RootNamespace)</_EffectiveNamespace>
+      <_EffectiveNamespace Condition=" '$(ValueStringBuilder_Namespace)' != '' ">$(ValueStringBuilder_Namespace)</_EffectiveNamespace>
+      <DefineConstants Condition=" '$(_EffectiveNamespace)' == 'MyNamespace' ">$(DefineConstants);FEATURE_NAMESPACE_MYNAMESPACE</DefineConstants>
+      <DefineConstants Condition=" '$(_EffectiveNamespace)' == 'Lucene.Net.Text' ">$(DefineConstants);FEATURE_NAMESPACE_LUCENENETTEXT</DefineConstants>
+      <DefineConstants Condition=" '$(_EffectiveNamespace)' == '' Or '$(_EffectiveNamespace.ToLower())' == 'global::' ">$(DefineConstants);FEATURE_NAMESPACE_GLOBAL</DefineConstants>
+    </PropertyGroup>
+
+    <Message Importance="high" Text="RootNamespace: $(RootNamespace)" />
+    <Message Importance="high" Text="ValueStringBuilder_Namespace: $(ValueStringBuilder_Namespace)" />
+    <Message Importance="high" Text="_EffectiveNamespace: $(_EffectiveNamespace)" />
+    <Message Importance="high" Text="ValueStringBuilder_UseJavaStyleFormatting: $(ValueStringBuilder_UseJavaStyleFormatting)" />
+    <Message Importance="high" Text="ImportPropsFile: $(ImportPropsFile)" />
+    <Message Importance="high" Text="_PackageVersionPropsFilePath: $(_PackageVersionPropsFilePath)" />
+    
+
+    <Message Importance="high" Text="DefineConstants: $(DefineConstants)" />
+
+  </Target>
+
+</Project>

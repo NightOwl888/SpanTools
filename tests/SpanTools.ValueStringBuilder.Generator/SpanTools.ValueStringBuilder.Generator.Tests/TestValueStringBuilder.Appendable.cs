@@ -26,7 +26,8 @@ namespace SpanTools.Generator.Tests
         [Fact]
         public void Test_Append_String()
         {
-            ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[16]);
+
+                ValueStringBuilder sb = new ValueStringBuilder(stackalloc char[16]);
             try
             {
                 sb.Append("ab");

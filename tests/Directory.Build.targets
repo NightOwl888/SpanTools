@@ -12,4 +12,30 @@
     <IsPublishable>true</IsPublishable>
   </PropertyGroup>
 
+  <UsingTask TaskName="ForceDeleteDirectory" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <DirectoryPath ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+        try
+        {
+            if (Directory.Exists(DirectoryPath))
+            {
+                Directory.Delete(DirectoryPath, recursive: true);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Swallow all exceptions unless MSBuild wants you to fail
+            Log.LogMessage(MessageImportance.Low, $"Failed to delete directory '{DirectoryPath}': {ex.Message}");
+        }
+      ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
 </Project>

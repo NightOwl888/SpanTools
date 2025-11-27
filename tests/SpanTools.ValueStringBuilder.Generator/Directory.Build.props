@@ -2,8 +2,24 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
   <PropertyGroup>
+    <_RestorePackagesPath>$(RestorePackagesPath)/spantools.valuestringbuilder.generator</_RestorePackagesPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RestoreSources Condition="Exists('$(_NuGetPackageOutputPath)')">$(RestoreSources);$(_NuGetPackageOutputPath)</RestoreSources>
+    <RestoreSources>$(RestoreSources);https://api.nuget.org/v3/index.json</RestoreSources>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Visual Studio blocks MSBuild from being able to check whether files are up-to-date.
+          So, we disable that here to gain access to that info. -->
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <ImportPropsFile Condition=" '$(ImportPropsFile)' == '' ">$(MSBuildThisFileDirectory)DefaultConfig.props</ImportPropsFile>
   </PropertyGroup>
 
   <Import Project="$(ImportPropsFile)" Condition="'$(ImportPropsFile)' != '' And Exists('$(ImportPropsFile)')" />
+  
 </Project>
