@@ -1241,6 +1241,7 @@ namespace SpanTools
                 {
                     cb.WriteLine("Debug.Assert(count > 0);");
                     cb.WriteLine("Debug.Assert(index >= 0);");
+                    cb.WriteLine("Debug.Assert(index <= _pos);");
                 });
             });
             cb.WriteLine();
@@ -1254,14 +1255,8 @@ namespace SpanTools
                     cb.WriteLine("{");
                     cb.IndentBlock(() =>
                     {
-                        cb.WriteLine("for (int i = _pos; i > index;)");
-                        cb.WriteLine("{");
-                        cb.IndentBlock(() =>
-                        {
-                            cb.WriteLine("--i;");
-                            cb.WriteLine("_chars[i + count] = _chars[i];");
-                        });
-                        cb.WriteLine("}");
+                        cb.WriteLine("_chars.Slice(index, _pos - index)");
+                        cb.WriteLine("    .CopyTo(_chars.Slice(index + count));");
                         cb.WriteLine("_pos += count;");
                         cb.WriteLineIf(options.IncludeMaxLengthTracking, "UpdateMaxLength();");
                         cb.WriteLine("return;");

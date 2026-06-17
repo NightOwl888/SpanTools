@@ -2,6 +2,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Newtonsoft.Json.Linq;
 using SpanTools.TestUtilities.Xunit;
 using System;
 using System.Collections.Generic;
@@ -587,6 +588,92 @@ namespace SpanTools.Generator.Tests
             using var builder = new ValueStringBuilder(stackalloc char[original.Length]);
             builder.Append(original);
             builder.Insert(index, value);
+            Assert.Equal(expected, builder.ToString());
+        }
+
+        /// <summary>
+        /// Stresses the MakeRoom() implementation
+        /// </summary>
+        [Theory]
+        [InlineData("0123456789", 0, "ABC")]
+        [InlineData("0123456789", 1, "ABC")]
+        [InlineData("0123456789", 5, "ABC")]
+        [InlineData("0123456789", 9, "ABC")]
+        [InlineData("0123456789", 10, "ABC")]
+        public void Insert_CharSpan_InPlaceMove_MatchesStringInsert(string original, int index, string value)
+        {
+            // Enough spare capacity to guarantee the in-place MakeRoom() path.
+            using var builder = new ValueStringBuilder(stackalloc char[original.Length + value.Length + 10]);
+            builder.Append(original);
+
+            builder.Insert(index, value.AsSpan());
+
+            Assert.Equal(
+                original.Insert(index, value),
+                builder.ToString());
+        }
+
+        /// <summary>
+        /// Stresses the MakeRoom() implementation
+        /// </summary>
+        [Theory]
+        [InlineData("0123456789", 0, "ABC")]
+        [InlineData("0123456789", 1, "ABC")]
+        [InlineData("0123456789", 5, "ABC")]
+        [InlineData("0123456789", 9, "ABC")]
+        [InlineData("0123456789", 10, "ABC")]
+        public void Insert_CharSpan_ReallocationMove_MatchesStringInsert(string original, int index, string value)
+        {
+            // No spare capacity. Forces allocation.
+            using var builder = new ValueStringBuilder(stackalloc char[original.Length]);
+            builder.Append(original);
+
+            builder.Insert(index, value.AsSpan());
+
+            Assert.Equal(
+                original.Insert(index, value),
+                builder.ToString());
+        }
+
+        /// <summary>
+        /// Stresses the MakeRoom() implementation
+        /// </summary>
+        [Fact]
+        public void Insert_CharSpan_InPlaceMove_LargeOverlap_MatchesStringInsert()
+        {
+            string original = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            string value = "1234567890";
+
+            using var builder = new ValueStringBuilder(stackalloc char[original.Length + value.Length + 10]);
+            builder.Append(original);
+
+            builder.Insert(1, value.AsSpan());
+
+            Assert.Equal(
+                original.Insert(1, value),
+                builder.ToString());
+        }
+
+        [Fact]
+        public void Insert_CharSpan_RepeatedFrontInsertions_MatchesStringInsert()
+        {
+            string expected = "XYZ";
+
+            using var builder = new ValueStringBuilder(stackalloc char[64]);
+            builder.Append("XYZ");
+
+            builder.Insert(0, "1".AsSpan());
+            expected = expected.Insert(0, "1");
+
+            builder.Insert(0, "2".AsSpan());
+            expected = expected.Insert(0, "2");
+
+            builder.Insert(0, "3".AsSpan());
+            expected = expected.Insert(0, "3");
+
+            builder.Insert(0, "4".AsSpan());
+            expected = expected.Insert(0, "4");
+
             Assert.Equal(expected, builder.ToString());
         }
 
