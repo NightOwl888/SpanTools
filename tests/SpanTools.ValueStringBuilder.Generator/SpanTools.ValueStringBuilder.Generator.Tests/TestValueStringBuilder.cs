@@ -689,6 +689,17 @@ namespace SpanTools.Generator.Tests
                 yield return new object[] { "Hello", 0, null!, 1, "Hello" };
                 yield return new object[] { "Hello", 3, "abc", 2, "Helabcabclo" };
                 yield return new object[] { "Hello", 5, "def", 2, "Hellodefdef" };
+
+                // added tests to stress copy logic
+                yield return new object[] { "", 0, "a", 8, "aaaaaaaa" };
+                yield return new object[] { "", 0, "ab", 4, "abababab" };
+                yield return new object[] { "", 0, "abc", 4, "abcabcabcabc" };
+                yield return new object[] { "", 0, "abcd", 3, "abcdabcdabcd" };
+                yield return new object[] { "", 0, "abc", 5, "abcabcabcabcabc" };
+                yield return new object[] { "Hello", 0, "abc", 5, "abcabcabcabcabcHello" };
+                yield return new object[] { "Hello", 2, "abc", 5, "Heabcabcabcabcabcllo" };
+                yield return new object[] { "Hello", 5, "abc", 5, "Helloabcabcabcabcabc" };
+                yield return new object[] { "", 0, "abcde", 7, "abcdeabcdeabcdeabcdeabcdeabcdeabcde" };
             }
         }
 

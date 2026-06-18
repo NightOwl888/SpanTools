@@ -683,6 +683,7 @@ namespace SpanTools
                 });
             });
             cb.WriteLine();
+
             cb.IndentBlock(() =>
             {
                 cb.WriteLine("/// <summary>");
@@ -690,91 +691,81 @@ namespace SpanTools
                 cb.WriteLine("/// </summary>");
                 cb.WriteLine("/// <param name=\"index\">The position in this instance where insertion begins.</param>");
                 cb.WriteLine("/// <param name=\"value\">The string to insert.</param>");
-                cb.WriteLine("/// <param name=\"valueCount\">The number of times to insert <paramref name=\"value\"/>.</param>");
+                cb.WriteLine("/// <param name=\"repeatCount\">The number of times to insert <paramref name=\"value\"/>.</param>");
                 cb.WriteLine("/// <remarks>");
-                cb.WriteLine("/// <paramref name=\"index\"/> and <paramref name=\"valueCount\"/> range checks are performed using <see cref=\"Debug.Assert(bool)\"/>.");
+                cb.WriteLine("/// <paramref name=\"index\"/> and <paramref name=\"repeatCount\"/> range checks are performed using <see cref=\"Debug.Assert(bool)\"/>.");
                 cb.WriteLine("/// <para/>");
                 cb.WriteLine("/// Existing characters are shifted to make room for the new text. The capacity of this instance is adjusted as needed.");
                 cb.WriteLine("/// <para/>");
-                cb.WriteLine("/// This StringBuilder object is not changed if <paramref name=\"value\"/> is <c>null</c>, <paramref name=\"value\"/> is");
-                cb.WriteLine("/// not <c>null</c> but its length is zero, or <paramref name=\"valueCount\"/> is zero.");
+                cb.WriteLine("/// This <see cref=\"ValueStringBuilder\"/> struct is not changed if <paramref name=\"value\"/> is <c>null</c>,");
+                cb.WriteLine("/// <paramref name=\"value\"/> is not <c>null</c> but its length is zero, or <paramref name=\"repeatCount\"/> is zero.");
                 cb.WriteLine("/// </remarks>");
                 cb.WriteLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-                cb.WriteLine("public void Insert(int index, string? value, int valueCount)");
-                cb.IndentBlock(() =>
-                {
-                    cb.WriteLine("=> Insert(index, value.AsSpan(), valueCount);");
-                });
+                cb.WriteLine("public void Insert(int index, string? value, int repeatCount) => Insert(index, value.AsSpan(), repeatCount);");
             });
             cb.WriteLine();
             cb.IndentBlock(() =>
             {
                 cb.WriteLine("/// <summary>");
-                cb.WriteLine("/// Inserts one or more copies of a specified span into this instance at the specified character position.");
+                cb.WriteLine("/// Inserts one or more copies of a specified sequence of characters into this instance at the specified character position.");
                 cb.WriteLine("/// </summary>");
                 cb.WriteLine("/// <param name=\"index\">The position in this instance where insertion begins.</param>");
-                cb.WriteLine("/// <param name=\"value\">The span to insert.</param>");
-                cb.WriteLine("/// <param name=\"valueCount\">The number of times to insert <paramref name=\"value\"/>.</param>");
+                cb.WriteLine("/// <param name=\"value\">The sequence of characters to insert.</param>");
+                cb.WriteLine("/// <param name=\"repeatCount\">The number of times to insert <paramref name=\"value\"/>.</param>");
+                cb.WriteLine("/// <returns>A reference to this instance after insertion has completed.</returns>");
                 cb.WriteLine("/// <remarks>");
-                cb.WriteLine("/// <paramref name=\"index\"/> and <paramref name=\"valueCount\"/> range checks are performed using <see cref=\"Debug.Assert(bool)\"/>.");
+                cb.WriteLine("/// <paramref name=\"index\"/> and <paramref name=\"repeatCount\"/> range checks are performed using <see cref=\"Debug.Assert(bool)\"/>.");
                 cb.WriteLine("/// <para/>");
                 cb.WriteLine("/// Existing characters are shifted to make room for the new text. The capacity of this instance is adjusted as needed.");
                 cb.WriteLine("/// <para/>");
-                cb.WriteLine("/// This StringBuilder object is not changed if <paramref name=\"value\"/>'s length is zero or <paramref name=\"valueCount\"/> is zero.");
+                cb.WriteLine("/// This <see cref=\"ValueStringBuilder\"/> struct is not changed if the length of <paramref name=\"value\"/> is zero or");
+                cb.WriteLine("/// <paramref name=\"repeatCount\"/> is zero.");
                 cb.WriteLine("/// </remarks>");
-                cb.WriteLine("public void Insert(int index, scoped ReadOnlySpan<char> value, int valueCount)");
+                cb.WriteLine("public void Insert(int index, scoped ReadOnlySpan<char> value, int repeatCount)");
                 cb.WriteLine("{");
                 cb.IndentBlock(() =>
                 {
-                    cb.WriteLine("Debug.Assert(valueCount >= 0);");
+                    cb.WriteLine("Debug.Assert(repeatCount >= 0);");
+                    cb.WriteLine("Debug.Assert(index >= 0);");
                     cb.WriteLine("Debug.Assert(index <= _pos);");
-                });
-            });
-            cb.WriteLine();
-            cb.IndentBlock(() =>
-            {
-                cb.IndentBlock(() =>
-                {
-                    cb.WriteLine("if (value.IsEmpty || valueCount == 0)");
+                    cb.WriteLine();
+                    cb.WriteLine("if (value.IsEmpty || repeatCount == 0)");
                     cb.WriteLine("{");
                     cb.IndentBlock(() =>
                     {
                         cb.WriteLine("return;");
                     });
                     cb.WriteLine("}");
-                });
-            });
-            cb.WriteLine();
-            cb.IndentBlock(() =>
-            {
-                cb.IndentBlock(() =>
-                {
+                    cb.WriteLine();
                     cb.WriteLine("// Ensure we don't insert more chars than we can hold, and we don't");
                     cb.WriteLine("// have any integer overflow in our new length.");
-                    cb.WriteLine("long insertingChars = (long)value.Length * valueCount;");
+                    cb.WriteLine("long insertingChars = (long)value.Length * repeatCount;");
                     cb.WriteLine("Debug.Assert(insertingChars + _pos < int.MaxValue);");
-                });
-            });
-            cb.WriteLine();
-            cb.IndentBlock(() =>
-            {
-                cb.IndentBlock(() =>
-                {
+                    cb.WriteLine();
                     cb.WriteLine("MakeRoom(index, (int)insertingChars);");
-                });
-            });
-            cb.WriteLine();
-            cb.IndentBlock(() =>
-            {
-                cb.IndentBlock(() =>
-                {
-                    cb.WriteLine("int valueLength = value.Length;");
-                    cb.WriteLine("while (valueCount > 0)");
+                    cb.WriteLine();
+                    cb.WriteLine("Span<char> destination =");
+                    cb.WriteLine("_chars.Slice(index, (int)insertingChars);");
+                    cb.WriteLine();
+                    cb.WriteLine("// We only copy from the source once. The remainder of the copies");
+                    cb.WriteLine("// are from destination to destination. This allows for more opportunities");
+                    cb.WriteLine("// for the BCL to optimize the copy.");
+                    cb.WriteLine("value.CopyTo(destination);");
+                    cb.WriteLine();
+                    cb.WriteLine("int copied = value.Length;");
+                    cb.WriteLine("int destinationLength = destination.Length;");
+                    cb.WriteLine();
+                    cb.WriteLine("while (copied < destinationLength)");
                     cb.WriteLine("{");
                     cb.IndentBlock(() =>
                     {
-                        cb.WriteLine("ReplaceInPlace(ref index, ref MemoryMarshal.GetReference(value), valueLength);");
-                        cb.WriteLine("--valueCount;");
+                        cb.WriteLine("int remaining = destinationLength - copied;");
+                        cb.WriteLine("int copyLength = copied < remaining ? copied : remaining;");
+                        cb.WriteLine();
+                        cb.WriteLine("destination.Slice(0, copyLength)");
+                        cb.WriteLine(".CopyTo(destination.Slice(copied));");
+                        cb.WriteLine();
+                        cb.WriteLine("copied += copyLength;");
                     });
                     cb.WriteLine("}");
                 });
