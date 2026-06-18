@@ -17,6 +17,7 @@ namespace SpanTools
 
             cb.WriteLineIf(options.IncludesJ2N_2_1_Or_Greater, "using J2N;");
             cb.WriteLine("using System;");
+            cb.WriteLine("using System.Buffers;");
             cb.WriteLine("using System.Diagnostics;");
             cb.WriteLine("using System.Runtime.InteropServices;");
             cb.WriteLine("#nullable enable");
@@ -79,7 +80,7 @@ namespace SpanTools
                 cb.WriteLine("public void Remove(int startIndex, int length) // BCL method");
                 cb.IndentBlock(() =>
                 {
-                    cb.WriteLine("=> RemoveCore(startIndex, length, zeroBeyondPosition: false);");
+                    cb.WriteLine("=> RemoveCore(startIndex, length);");
                 });
             });
             cb.WriteLine();
@@ -117,7 +118,7 @@ namespace SpanTools
                     cb.WriteLine("if (count > 0)");
                     cb.IndentBlock(() =>
                     {
-                        cb.WriteLine("RemoveCore(startIndex, count, zeroBeyondPosition: false);");
+                        cb.WriteLine("RemoveCore(startIndex, count);");
                     });
                 });
                 cb.WriteLine("}");
@@ -133,7 +134,7 @@ namespace SpanTools
                 cb.WriteLine("/// <paramref name=\"startIndex\"/> and ends to the character at ");
                 cb.WriteLine("/// <c><paramref name=\"count\"/> - <paramref name=\"startIndex\"/></c> or");
                 cb.WriteLine("/// to the end of the sequence if no such character exists. First the");
-                cb.WriteLine("/// characters in the substring ar removed and then the specified ");
+                cb.WriteLine("/// characters in the substring are removed and then the specified ");
                 cb.WriteLine("/// <paramref name=\"newValue\"/> is inserted at <paramref name=\"startIndex\"/>.");
                 cb.WriteLine("/// This <see cref=\"ValueStringBuilder\"/> will be lengthened to accommodate the");
                 cb.WriteLine("/// specified <paramref name=\"newValue\"/> if necessary.");
@@ -170,7 +171,7 @@ namespace SpanTools
                 cb.WriteLine("/// <paramref name=\"startIndex\"/> and ends to the character at ");
                 cb.WriteLine("/// <c><paramref name=\"count\"/> - <paramref name=\"startIndex\"/></c> or");
                 cb.WriteLine("/// to the end of the sequence if no such character exists. First the");
-                cb.WriteLine("/// characters in the substring ar removed and then the specified ");
+                cb.WriteLine("/// characters in the substring are removed and then the specified ");
                 cb.WriteLine("/// <paramref name=\"newValue\"/> is inserted at <paramref name=\"startIndex\"/>.");
                 cb.WriteLine("/// This <see cref=\"ValueStringBuilder\"/> will be lengthened to accommodate the");
                 cb.WriteLine("/// specified <paramref name=\"newValue\"/> if necessary.");
@@ -180,6 +181,9 @@ namespace SpanTools
                 cb.WriteLine("/// <param name=\"newValue\">The replacement string.</param>");
                 cb.WriteLine("/// <remarks>");
                 cb.WriteLine("/// <paramref name=\"startIndex\"/> and <paramref name=\"count\"/> range checks are performed using <see cref=\"Debug.Assert(bool)\"/>.");
+                cb.WriteLine("/// </remarks>");
+                cb.WriteLine("/// <remarks>");
+                cb.WriteLine("/// This method allows <paramref name=\"newValue\"/> to be this instance or a slice of this instance.");
                 cb.WriteLine("/// </remarks>");
                 cb.WriteLine("public void Replace(int startIndex, int count, scoped ReadOnlySpan<char> newValue) // JDK method");
                 cb.WriteLine("{");
@@ -201,7 +205,7 @@ namespace SpanTools
             cb.WriteLine();
             cb.IndentBlock(() =>
             {
-                cb.WriteLine("private void RemoveCore(int startIndex, int length, bool zeroBeyondPosition)");
+                cb.WriteLine("private void RemoveCore(int startIndex, int length)");
                 cb.WriteLine("{");
                 cb.IndentBlock(() =>
                 {
@@ -237,13 +241,68 @@ namespace SpanTools
                         cb.WriteLine("int endIndex = startIndex + length;");
                         cb.WriteLine("_chars.Slice(endIndex).CopyTo(_chars.Slice(startIndex));");
                         cb.WriteLine("_pos -= length;");
-                        cb.WriteLine("if (zeroBeyondPosition)");
-                        cb.WriteLine("{");
-                        cb.IndentBlock(() =>
-                        {
-                            cb.WriteLine("_chars.Slice(_pos).Fill('\0'); // Zero out the remaining chars");
-                        });
-                        cb.WriteLine("}");
+                    });
+                    cb.WriteLine("}");
+                });
+                cb.WriteLine("}");
+            });
+            cb.WriteLine();
+
+            cb.IndentBlock(() =>
+            {
+                cb.WriteLine("private void ReplaceCore(int startIndex, int count, scoped ReadOnlySpan<char> newValue)");
+                cb.WriteLine("{");
+                cb.IndentBlock(() =>
+                {
+                    cb.WriteLine("int pos = _pos;");
+                    cb.WriteLine("Debug.Assert(startIndex >= 0 && startIndex <= pos);");
+                    cb.WriteLine("Debug.Assert(count >= 0);");
+                    cb.WriteLine();
+                    cb.WriteLine("// Clamp to end of buffer (Harmony/JDK behavior)");
+                    cb.WriteLine("int end = count > pos - startIndex");
+                    cb.WriteLine("? pos");
+                    cb.WriteLine(": startIndex + count; // Overflow not possible here");
+                    cb.WriteLine();
+                    cb.WriteLine("int replacedLength = end - startIndex;");
+                    cb.WriteLine();
+                    cb.WriteLine("if (_chars.Overlaps(newValue, out int sourceOffset))");
+                    cb.WriteLine("{");
+                    cb.IndentBlock(() =>
+                    {
+                        cb.WriteLine("ReplaceCoreOverlapping(startIndex, count, sourceOffset, newValue.Length, replacedLength, end);");
+                        cb.WriteLine("return;");
+                    });
+                    cb.WriteLine("}");
+                    cb.WriteLine();
+                    cb.WriteLine("int delta = newValue.Length - replacedLength;");
+                    cb.WriteLine("if (delta > 0)");
+                    cb.WriteLine("{");
+                    cb.IndentBlock(() =>
+                    {
+                        cb.WriteLine("// Need more space.");
+                        cb.WriteLine("//");
+                        cb.WriteLine("// Insert the additional space immediately after the replaced region.");
+                        cb.WriteLine("// This preserves the replacement area while shifting only the tail.");
+                        cb.WriteLine("MakeRoom(end, delta);");
+                    });
+                    cb.WriteLine("}");
+                    cb.WriteLine("else if (delta < 0)");
+                    cb.WriteLine("{");
+                    cb.IndentBlock(() =>
+                    {
+                        cb.WriteLine("// Need less space.");
+                        cb.WriteLine("//");
+                        cb.WriteLine("// Remove only the excess characters after the replacement area.");
+                        cb.WriteLine("RemoveCore(startIndex + newValue.Length, -delta);");
+                    });
+                    cb.WriteLine("}");
+                    cb.WriteLine();
+                    cb.WriteLine("// Overwrite the replacement area.");
+                    cb.WriteLine("if (!newValue.IsEmpty)");
+                    cb.WriteLine("{");
+                    cb.IndentBlock(() =>
+                    {
+                        cb.WriteLine("newValue.CopyTo(_chars.Slice(startIndex));");
                     });
                     cb.WriteLine("}");
                 });
@@ -252,58 +311,94 @@ namespace SpanTools
             cb.WriteLine();
             cb.IndentBlock(() =>
             {
-                cb.WriteLine("private void ReplaceCore(int startIndex, int count, scoped ReadOnlySpan<char> newValue)");
+                cb.WriteLine("private void ReplaceCoreOverlapping(int startIndex, int count, int sourceOffset, int sourceLength, int replacedLength, int end)");
                 cb.WriteLine("{");
                 cb.IndentBlock(() =>
                 {
-                    cb.WriteLine("Debug.Assert(startIndex >= 0 || startIndex <= _pos);");
-                    cb.WriteLine("Debug.Assert(count >= 0);");
-                });
-            });
-            cb.WriteLine();
-            cb.IndentBlock(() =>
-            {
-                cb.IndentBlock(() =>
-                {
-                    cb.WriteLine("int end = startIndex + count;");
-                    cb.WriteLine("if (end > _pos)");
+                    cb.WriteLine("Debug.Assert(startIndex <= int.MaxValue - sourceLength);");
+                    cb.WriteLine();
+                    cb.WriteLine("// Fast path: Exact self-replacement (no-op)");
+                    cb.WriteLine("if (sourceOffset == startIndex && sourceLength == replacedLength)");
                     cb.WriteLine("{");
                     cb.IndentBlock(() =>
                     {
-                        cb.WriteLine("end = _pos;");
+                        cb.WriteLine("return;");
                     });
                     cb.WriteLine("}");
-                    cb.WriteLine("if (end > startIndex)");
+                    cb.WriteLine();
+                    cb.WriteLine("// Common case: Source entirely before the replacement region");
+                    cb.WriteLine("if ((uint)sourceOffset + (uint)sourceLength <= startIndex)");
                     cb.WriteLine("{");
                     cb.IndentBlock(() =>
                     {
-                        cb.WriteLine("int stringLength = newValue.Length;");
-                        cb.WriteLine("int diff = end - startIndex - stringLength;");
-                        cb.WriteLine("if (diff > 0)");
-                        cb.WriteLine("{ // replacing with fewer characters");
-                        cb.IndentBlock(() =>
-                        {
-                            cb.WriteLine("RemoveCore(startIndex, diff, zeroBeyondPosition: false);");
-                        });
-                        cb.WriteLine("}");
-                        cb.WriteLine("else if (diff < 0)");
+                        cb.WriteLine("ReadOnlySpan<char> source = _chars.Slice(sourceOffset, sourceLength);");
+                        cb.WriteLine();
+                        cb.WriteLine("int delta = sourceLength - replacedLength;");
+                        cb.WriteLine();
+                        cb.WriteLine("if (delta > 0)");
                         cb.WriteLine("{");
                         cb.IndentBlock(() =>
                         {
-                            cb.WriteLine("// replacing with more characters...need some room");
-                            cb.WriteLine("MakeRoom(startIndex, -diff);");
+                            cb.WriteLine("MakeRoom(end, delta);");
                         });
                         cb.WriteLine("}");
-                        cb.WriteLine("// copy the chars based on the new length");
-                        cb.WriteLine("int index = startIndex; // Need a copy in case it is modified so it doesn't affect the below insert.");
-                        cb.WriteLine("ReplaceInPlace(ref index, ref MemoryMarshal.GetReference(newValue), stringLength);");
+                        cb.WriteLine("else if (delta < 0)");
+                        cb.WriteLine("{");
+                        cb.IndentBlock(() =>
+                        {
+                            cb.WriteLine("RemoveCore(startIndex + sourceLength, -delta);");
+                        });
+                        cb.WriteLine("}");
+                        cb.WriteLine();
+                        cb.WriteLine("if (sourceLength > 0)");
+                        cb.WriteLine("{");
+                        cb.IndentBlock(() =>
+                        {
+                            cb.WriteLine("source.CopyTo(_chars.Slice(startIndex));");
+                        });
+                        cb.WriteLine("}");
+                        cb.WriteLine("return;");
                     });
                     cb.WriteLine("}");
-                    cb.WriteLine("if (startIndex == end)");
+                    cb.WriteLine();
+                    cb.WriteLine("char[]? arrayToReturn = null;");
+                    cb.WriteLine("try");
                     cb.WriteLine("{");
                     cb.IndentBlock(() =>
                     {
-                        cb.WriteLine("Insert(startIndex, ref MemoryMarshal.GetReference(newValue), newValue.Length);");
+                        cb.WriteLine("Span<char> temp = sourceLength <= CharStackBufferSize");
+                        cb.WriteLine("? stackalloc char[sourceLength]");
+                        cb.WriteLine(": (arrayToReturn = ArrayPool<char>.Shared.Rent(sourceLength)).AsSpan(0, sourceLength);");
+                        cb.WriteLine();
+                        cb.WriteLine("_chars.Slice(sourceOffset, sourceLength)");
+                        cb.WriteLine(".CopyTo(temp);");
+                        cb.WriteLine();
+                        cb.WriteLine("int delta = sourceLength - replacedLength;");
+                        cb.WriteLine();
+                        cb.WriteLine("if (delta > 0)");
+                        cb.WriteLine("{");
+                        cb.IndentBlock(() =>
+                        {
+                            cb.WriteLine("MakeRoom(end, delta);");
+                        });
+                        cb.WriteLine("}");
+                        cb.WriteLine("else if (delta < 0)");
+                        cb.WriteLine("{");
+                        cb.IndentBlock(() =>
+                        {
+                            cb.WriteLine("RemoveCore(startIndex + sourceLength, -delta);");
+                        });
+                        cb.WriteLine("}");
+                        cb.WriteLine();
+                        cb.WriteLine("temp.CopyTo(_chars.Slice(startIndex));");
+                    });
+                    cb.WriteLine("}");
+                    cb.WriteLine("finally");
+                    cb.WriteLine("{");
+                    cb.IndentBlock(() =>
+                    {
+                        cb.WriteLine("if (arrayToReturn is not null)");
+                        cb.WriteLine("ArrayPool<char>.Shared.Return(arrayToReturn);");
                     });
                     cb.WriteLine("}");
                 });
@@ -312,6 +407,7 @@ namespace SpanTools
             cb.WriteLine("}");
 
             return sb.ToString();
+
         }
     }
 }
