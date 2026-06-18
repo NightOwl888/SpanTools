@@ -615,20 +615,20 @@ namespace SpanTools
                 cb.WriteLine("/// </summary>");
                 cb.WriteLine("/// <param name=\"index\">The position in this instance where insertion begins.</param>");
                 cb.WriteLine("/// <param name=\"value\">The value to insert.</param>");
-                cb.WriteLine("/// <param name=\"valueCount\">The number of times to insert <paramref name=\"value\"/>.</param>");
+                cb.WriteLine("/// <param name=\"repeatCount\">The number of times to insert <paramref name=\"value\"/>.</param>");
                 cb.WriteLine("/// <remarks>");
-                cb.WriteLine("/// <paramref name=\"index\"/> and <paramref name=\"valueCount\"/> range checks are performed using <see cref=\"Debug.Assert(bool)\"/>.");
+                cb.WriteLine("/// <paramref name=\"index\"/> and <paramref name=\"repeatCount\"/> range checks are performed using <see cref=\"Debug.Assert(bool)\"/>.");
                 cb.WriteLine("/// <para/>");
                 cb.WriteLine("/// Existing characters are shifted to make room for the new text. The capacity of this instance is adjusted as needed.");
                 cb.WriteLine("/// <para/>");
-                cb.WriteLine("/// This <see cref=\"ValueStringBuilder\"/> instance is not changed if <paramref name=\"valueCount\"/> is 0.");
+                cb.WriteLine("/// This <see cref=\"ValueStringBuilder\"/> instance is not changed if <paramref name=\"repeatCount\"/> is 0.");
                 cb.WriteLine("/// </remarks>");
-                cb.WriteLine("public void Insert(int index, char value, int valueCount)");
+                cb.WriteLine("public void Insert(int index, char value, int repeatCount)");
                 cb.WriteLine("{");
                 cb.IndentBlock(() =>
                 {
-                    cb.WriteLine("MakeRoom(index, valueCount);");
-                    cb.WriteLine("_chars.Slice(index, valueCount).Fill(value);");
+                    cb.WriteLine("MakeRoom(index, repeatCount);");
+                    cb.WriteLine("_chars.Slice(index, repeatCount).Fill(value);");
                 });
                 cb.WriteLine("}");
             });
