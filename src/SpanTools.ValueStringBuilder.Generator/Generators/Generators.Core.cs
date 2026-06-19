@@ -2,8 +2,6 @@
 // Use of this source code is governed by an MIT-style license that can be
 // found in the LICENSE.txt file or at https://opensource.org/licenses/MIT.
 
-using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace SpanTools
@@ -1343,32 +1341,9 @@ namespace SpanTools
                 cb.WriteLine("{");
                 cb.IndentBlock(() =>
                 {
-                    cb.WriteLine("if (count != 0)");
-                    cb.WriteLine("{");
-                    cb.IndentBlock(() =>
-                    {
-                        cb.WriteLine("while (true)");
-                        cb.WriteLine("{");
-                        cb.IndentBlock(() =>
-                        {
-                            cb.WriteLine("int length = _pos - index;");
-                            cb.WriteLine("Debug.Assert(length >= 0, \"Index isn't in the array.\");");
-                        });
-                    });
-                });
-            });
-            cb.WriteLine();
-            cb.IndentBlock(() =>
-            {
-                cb.IndentBlock(() =>
-                {
-                    cb.IndentBlock(() =>
-                    {
-                        cb.IndentBlock(() =>
-                        {
-                            cb.WriteLine("int lengthToCopy = Math.Min(length, count);");
-                        });
-                    });
+                    cb.WriteLine("if (count == 0)");
+                    cb.WriteLine("    return;");
+                    cb.WriteLine();
                 });
             });
             cb.WriteLine("#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER");
@@ -1376,42 +1351,29 @@ namespace SpanTools
             {
                 cb.IndentBlock(() =>
                 {
-                    cb.IndentBlock(() =>
-                    {
-                        cb.IndentBlock(() =>
-                        {
-                            cb.WriteLine("MemoryMarshal.CreateSpan(ref value, lengthToCopy).CopyTo(_chars.Slice(index));");
-                        });
-                    });
+                    cb.WriteLine("MemoryMarshal.CreateSpan(ref value, count).CopyTo(_chars.Slice(index));");
                 });
             });
             cb.WriteLine("#else");
-
             if (options.AllowUnsafeBlocks)
             {
                 cb.IndentBlock(() =>
                 {
                     cb.IndentBlock(() =>
                     {
+                        cb.WriteLine("unsafe");
+                        cb.WriteLine("{");
                         cb.IndentBlock(() =>
                         {
+                            cb.WriteLine("fixed (char* pSource = &value)");
+                            cb.WriteLine("{");
                             cb.IndentBlock(() =>
                             {
-                                cb.WriteLine("unsafe");
-                                cb.WriteLine("{");
-                                cb.IndentBlock(() =>
-                                {
-                                    cb.WriteLine("fixed (char* pSource = &value)");
-                                    cb.WriteLine("{");
-                                    cb.IndentBlock(() =>
-                                    {
-                                        cb.WriteLine("new Span<char>(pSource, lengthToCopy).CopyTo(_chars.Slice(index));");
-                                    });
-                                    cb.WriteLine("}");
-                                });
-                                cb.WriteLine("}");
+                                cb.WriteLine("new Span<char>(pSource, count).CopyTo(_chars.Slice(index));");
                             });
+                            cb.WriteLine("}");
                         });
+                        cb.WriteLine("}");
                     });
                 });
             }
@@ -1421,57 +1383,38 @@ namespace SpanTools
                 {
                     cb.IndentBlock(() =>
                     {
+                        cb.WriteLine("ref char destination = ref _chars[index];");
+                        cb.WriteLine("ref char source = ref value;");
+                        cb.WriteLine();
+                        cb.WriteLine("if (Unsafe.IsAddressLessThan(ref destination, ref source) ||");
+                        cb.WriteLine("    !Unsafe.IsAddressLessThan(ref destination, ref Unsafe.Add(ref source, count)))");
+                        cb.WriteLine("{");
                         cb.IndentBlock(() =>
                         {
-                            cb.IndentBlock(() =>
-                            {
-                                cb.WriteLine("int i = 0;");
-                                cb.WriteLine("for (; i + 7 < lengthToCopy; i += 8)");
-                                cb.WriteLine("{");
-                                cb.IndentBlock(() =>
-                                {
-                                    cb.WriteLine("_chars[index + i] = Unsafe.Add(ref value, i);");
-                                    cb.WriteLine("_chars[index + i + 1] = Unsafe.Add(ref value, i + 1);");
-                                    cb.WriteLine("_chars[index + i + 2] = Unsafe.Add(ref value, i + 2);");
-                                    cb.WriteLine("_chars[index + i + 3] = Unsafe.Add(ref value, i + 3);");
-                                    cb.WriteLine("_chars[index + i + 4] = Unsafe.Add(ref value, i + 4);");
-                                    cb.WriteLine("_chars[index + i + 5] = Unsafe.Add(ref value, i + 5);");
-                                    cb.WriteLine("_chars[index + i + 6] = Unsafe.Add(ref value, i + 6);");
-                                    cb.WriteLine("_chars[index + i + 7] = Unsafe.Add(ref value, i + 7);");
-                                });
-                                cb.WriteLine("}");
-                                cb.WriteLine("for (; i < lengthToCopy; i++) _chars[index + i] = Unsafe.Add(ref value, i);");
-                            });
+                            cb.WriteLine("// Forward copy");
+                            cb.WriteLine("for (int i = 0; i < count; i++)");
+                            cb.WriteLine("Unsafe.Add(ref destination, i) = Unsafe.Add(ref source, i);");
                         });
+                        cb.WriteLine("}");
+                        cb.WriteLine("else");
+                        cb.WriteLine("{");
+                        cb.IndentBlock(() =>
+                        {
+                            cb.WriteLine("// Backward copy");
+                            cb.WriteLine("for (int i = count - 1; i >= 0; i--)");
+                            cb.WriteLine("Unsafe.Add(ref destination, i) = Unsafe.Add(ref source, i);");
+                        });
+                        cb.WriteLine("}");
                     });
                 });
             }
-
             cb.WriteLine("#endif");
-
             cb.IndentBlock(() =>
             {
                 cb.IndentBlock(() =>
                 {
-                    cb.IndentBlock(() =>
-                    {
-                        cb.IndentBlock(() =>
-                        {
-                            cb.WriteLine("// Advance the index.");
-                            cb.WriteLine("index += lengthToCopy;");
-                            cb.WriteLine("count -= lengthToCopy;");
-                            cb.WriteLine("if (count == 0)");
-                            cb.WriteLine("{");
-                            cb.IndentBlock(() =>
-                            {
-                                cb.WriteLine("break;");
-                            });
-                            cb.WriteLine("}");
-                            cb.WriteLine("value = ref Unsafe.Add(ref value, lengthToCopy);");
-                        });
-                        cb.WriteLine("}");
-                    });
-                    cb.WriteLine("}");
+                    cb.WriteLine();
+                    cb.WriteLine("index += count;");
                 });
                 cb.WriteLine("}");
             });
