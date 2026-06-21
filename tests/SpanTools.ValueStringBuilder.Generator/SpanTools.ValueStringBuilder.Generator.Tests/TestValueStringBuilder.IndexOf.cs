@@ -113,19 +113,19 @@ namespace SpanTools.Generator.Tests
 
                 // Case 3: Overlapping substrings
                 yield return new object[] { "aaaaa", "aa", 3, 4, StringComparison.Ordinal, (CultureInfo?)null! }; // last full "aa" starts at 3
-//#if FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEINDEXOF
-//                yield return new object[] { "aaaaa", "aa", 2, 2, StringComparison.Ordinal, (CultureInfo?)null! }; // restrict search to before index 2
-//#else
+#if FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEINDEXOF
+                yield return new object[] { "aaaaa", "aa", 2, 2, StringComparison.Ordinal, (CultureInfo?)null! }; // restrict search to before index 2
+#else
                 yield return new object[] { "aaaaa", "aa", 1, 2, StringComparison.Ordinal, (CultureInfo?)null! }; // restrict search to before index 2
-//#endif
+#endif
 
                 // Case 4: Empty target matches at end
                 yield return new object[] { "abc", "", 3, 3, StringComparison.Ordinal, (CultureInfo?)null! };
-//#if FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEINDEXOF
-//                yield return new object[] { "abc", "", 2, 2, StringComparison.Ordinal, (CultureInfo?)null! };
-//#else
+#if FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEINDEXOF
+                yield return new object[] { "abc", "", 2, 2, StringComparison.Ordinal, (CultureInfo?)null! };
+#else
                 yield return new object[] { "abc", "", 3, 2, StringComparison.Ordinal, (CultureInfo?)null! }; // This is a special case that would return 2 in Java. But since we are using .NET startIndex/length semantics, it is correct to expect 3.
-//#endif
+#endif
 
                 // Case 5: Target not found
                 yield return new object[] { "abc", "d", -1, 2, StringComparison.Ordinal, (CultureInfo?)null! };
