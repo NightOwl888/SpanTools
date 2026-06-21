@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36401.2
+# Visual Studio Version 18
+VisualStudioVersion = 18.6.11819.183 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{91204677-A345-4C96-9678-2376882FED6E}"
 	ProjectSection(SolutionItems) = preProject
+		tests\DefaultConfig.props = tests\DefaultConfig.props
 		tests\Directory.Build.props = tests\Directory.Build.props
 		tests\Directory.Build.targets = tests\Directory.Build.targets
 	EndProjectSection
@@ -43,7 +44,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpanTools.TestUtilities", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SpanTools.ValueStringBuilder.Generator", "SpanTools.ValueStringBuilder.Generator", "{7D0525E5-1876-4DDD-B842-BEE6B32349FD}"
 	ProjectSection(SolutionItems) = preProject
-		tests\DefaultConfig.props = tests\DefaultConfig.props
 		tests\SpanTools.ValueStringBuilder.Generator\Directory.Build.props = tests\SpanTools.ValueStringBuilder.Generator\Directory.Build.props
 		tests\SpanTools.ValueStringBuilder.Generator\Directory.Build.targets = tests\SpanTools.ValueStringBuilder.Generator\Directory.Build.targets
 	EndProjectSection
