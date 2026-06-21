@@ -127,6 +127,7 @@
       <DefineConstants Condition=" '$(ValueStringBuilder_IncludeAsMemoryMethods.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_INCLUDEASMEMORYMETHODS</DefineConstants>
       <DefineConstants Condition=" '$(ValueStringBuilder_IncludeMaxLengthTracking.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING</DefineConstants>
       <DefineConstants Condition=" '$(ValueStringBuilder_UseJavaStyleFormatting.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEFORMATTING</DefineConstants>
+      <DefineConstants Condition=" '$(ValueStringBuilder_UseJavaStyleIndexOf.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEINDEXOF</DefineConstants>
     </PropertyGroup>
     
   </Target>

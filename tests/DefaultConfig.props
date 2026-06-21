@@ -9,10 +9,11 @@
     <ValueStringBuilder_IncludeMaxLengthTracking>true</ValueStringBuilder_IncludeMaxLengthTracking>
     <ValueStringBuilder_Namespace>MyNamespace</ValueStringBuilder_Namespace>
     <ValueStringBuilder_UseJavaStyleFormatting>true</ValueStringBuilder_UseJavaStyleFormatting>
+    <ValueStringBuilder_UseJavaStyleIndexOf>true</ValueStringBuilder_UseJavaStyleIndexOf>
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="J2N" VersionOverride="2.2.0-alpha-0026" />
+    <PackageReference Include="J2N" VersionOverride="2.2.0-alpha-0048" />
   </ItemGroup>
   
 </Project>
