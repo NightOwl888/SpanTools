@@ -7,6 +7,10 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <ValueStringBuilder_UseJavaStyleIndexOf>true</ValueStringBuilder_UseJavaStyleIndexOf>
+  </PropertyGroup>
+
   <PropertyGroup Label="Test Matrix">
     <MatrixId>$(AssemblyName)</MatrixId>
   </PropertyGroup>
@@ -21,7 +25,7 @@
     <MatrixOption Include="ValueStringBuilder_IncludeMaxLengthTracking" Values="true;false" />-->
     <MatrixOption Include="ValueStringBuilder_IncludeCodepointSupport" Values="true;false" />
     <MatrixOption Include="ValueStringBuilder_UseJavaStyleFormatting" Values="true;false" />
-    <!--<MatrixOption Include="ValueStringBuilder_UseJavaStyleIndexOf" Values="true;false" />-->
+    <MatrixOption Include="ValueStringBuilder_UseJavaStyleIndexOf" Values="true;false" />
   </ItemGroup>
 
   <ItemGroup Label="Test Matrix Packages">
