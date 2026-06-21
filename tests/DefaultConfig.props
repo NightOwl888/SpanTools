@@ -15,5 +15,9 @@
   <ItemGroup>
     <PackageReference Include="J2N" VersionOverride="2.2.0-alpha-0048" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEINDEXOF</DefineConstants>
+  </PropertyGroup>
   
 </Project>
