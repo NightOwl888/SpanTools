@@ -20,6 +20,7 @@ The following options are user configurable via MSBuild properties.
 | **ValueStringBuilder_IncludesJ2N**                       | `false`                             | Indicates that [J2N](https://www.nuget.org/packages/J2N) is available as a package dependency. Generally, this option does not have to be set because J2N will be detected automatically if part of the dependency graph. |
 | **ValueStringBuilder_IncludeCodepointSupport**           | `true`                              | If J2N is referenced as a `PackageReference`, this enables the `AppendCodePoint()`, `InsertCodePoint()`, `CodePointAt()`, `CodePointBefore()`, `CodePointCount()`, and `OffsetByCodePoints()` methods. If J2N is not referenced, this has no effect. |
 | **ValueStringBuilder_UseJavaStyleFormatting**            | `false`                             | If J2N is referenced as a `PackageReference`, this changes the default behavior of the `Append()` overloads that accept numeric types to use the invariant culture and `J` format to emulate Java-style floating point number formatting. If J2N is not referenced, this has no effect. |
+| **ValueStringBuilder_UseJavaStyleIndexOf**               | `false`                             | If J2N is referenced as a `PackageReference`, this changes the default behavior of the `IndexOf()` and `LastIndexOf()` overloads to use Java-style clamping behavior of `startIndex` and return values for special cases, such as matching empty strings. If J2N is not referenced, this has no effect. |
 
 ### Why a Code Generator instead of a Library?
 

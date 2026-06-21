@@ -148,6 +148,10 @@ namespace SpanTools
                 {
                     options.UseJavaStyleFormatting = IsTrue(value, options.UseJavaStyleFormatting);
                 }
+                else if (key.Equals("ValueStringBuilder_UseJavaStyleIndexOf".AsSpan(), StringComparison.OrdinalIgnoreCase))
+                {
+                    options.UseJavaStyleIndexOf = IsTrue(value, options.UseJavaStyleIndexOf);
+                }
             }
 
             return options;

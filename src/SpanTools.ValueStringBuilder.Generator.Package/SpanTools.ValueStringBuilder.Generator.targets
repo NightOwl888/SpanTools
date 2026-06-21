@@ -48,6 +48,7 @@
       <VSBProps Include="ValueStringBuilder_J2NPackageVersion=$(_J2N_ResolvedPackageVersion)" />
       <VSBProps Include="ValueStringBuilder_IncludeCodepointSupport=$(ValueStringBuilder_IncludeCodepointSupport)" />
       <VSBProps Include="ValueStringBuilder_UseJavaStyleFormatting=$(ValueStringBuilder_UseJavaStyleFormatting)" />
+      <VSBProps Include="ValueStringBuilder_UseJavaStyleIndexOf=$(ValueStringBuilder_UseJavaStyleIndexOf)" />
     </ItemGroup>
 
     <!-- Write all properties to one file -->

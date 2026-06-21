@@ -30,6 +30,7 @@ namespace SpanTools
         public bool IncludesJ2N_2_2_Or_Greater { get; set; }
 
         public bool UseJavaStyleFormatting { get; set; }
+        public bool UseJavaStyleIndexOf { get; set; }
         public bool IncludeCodepointSupport { get; set; } = true;
     }
 }

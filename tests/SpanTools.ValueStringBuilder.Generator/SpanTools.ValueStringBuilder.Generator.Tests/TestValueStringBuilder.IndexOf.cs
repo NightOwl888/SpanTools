@@ -205,7 +205,7 @@ namespace SpanTools.Generator.Tests
             using IDisposable context = culture is not null ? new ThreadCultureChange(culture) : new DummyDisposable();
 
             int actual = sb.IndexOf(target, startIndex, comparison);
-            Assert.Equal(expected + startIndex, actual);
+            Assert.Equal(expected < 0 ? expected : expected + startIndex, actual);
         }
 
         [Theory]
@@ -220,7 +220,7 @@ namespace SpanTools.Generator.Tests
             using IDisposable context = culture is not null ? new ThreadCultureChange(culture) : new DummyDisposable();
 
             int actual = sb.IndexOf(target.AsSpan(), startIndex, comparison);
-            Assert.Equal(expected + startIndex, actual);
+            Assert.Equal(expected < 0 ? expected : expected + startIndex, actual);
         }
 
         [Theory]
