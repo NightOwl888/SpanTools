@@ -23,10 +23,10 @@ namespace SpanTools
         void IIncrementalGenerator.Initialize(IncrementalGeneratorInitializationContext context)
         {
             // ---------- props provider (single ValueStringBuilderOptions) ----------
-            // Get any AdditionalText named ValueStringBuilder.Generator.props (0..1)
+            // Get any AdditionalText named SpanTools.ValueStringBuilder.Generator.props (0..1)
             var propsArrayProvider = context.AdditionalTextsProvider
                 .Where(at => Path.GetFileName(at.Path)
-                    .Equals("ValueStringBuilder.Generator.props", StringComparison.OrdinalIgnoreCase))
+                    .Equals("SpanTools.ValueStringBuilder.Generator.props", StringComparison.OrdinalIgnoreCase))
                 .Collect(); // now we have IncrementalValueProvider<ImmutableArray<AdditionalText>>
 
             // Convert the (possible) array into a single ValueStringBuilderOptions instance
