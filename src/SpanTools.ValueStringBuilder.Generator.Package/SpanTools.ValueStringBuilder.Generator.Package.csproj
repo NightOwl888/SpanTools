@@ -15,6 +15,7 @@
     <PackageId>SpanTools.ValueStringBuilder.Generator</PackageId>
     <Description>A ValueStringBuilder implementation that is generated in your project as a partial ref struct so it can be extended easily.</Description>
     <PackageTags>$(PackageTags);ValueStringBuilder;Text Tools;ReadOnlySpan;ReadOnlyMemory;Mutable Text</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <_IsPackageOutputPathOverridden>$([System.Text.RegularExpressions.Regex]::IsMatch('$(MSBuildCommandLineArgs)', '(?i)(?:^|[ ;])[-/]p:PackageOutputPath='))</_IsPackageOutputPathOverridden>
     <PackageOutputPath Condition=" '$(_IsPackageOutputPathOverridden.ToLower())' != 'true' ">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\_artifacts\NuGetPackages\$(Configuration)'))</PackageOutputPath>
     <_PackageVersionPropsFile>$(PackageOutputPath)\SpanTools.ValueStringBuilder.Generator.Version.props</_PackageVersionPropsFile>

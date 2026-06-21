@@ -35,8 +35,8 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Copyright Info">
-    <Product>Lucene.Net</Product>
-    <Company>The Apache Software Foundation</Company>
+    <Product>$(GitHubProject)</Product>
+    <Company>$(GitHubOrganization)</Company>
     <CurrentYear Condition=" '$(CurrentYear)' == '' ">$([System.DateTime]::UtcNow.Year.ToString())</CurrentYear>
     <BeginCopyrightYear>2025</BeginCopyrightYear>
     <CopyrightYearRange>$(BeginCopyrightYear) - $(CurrentYear)</CopyrightYearRange>
