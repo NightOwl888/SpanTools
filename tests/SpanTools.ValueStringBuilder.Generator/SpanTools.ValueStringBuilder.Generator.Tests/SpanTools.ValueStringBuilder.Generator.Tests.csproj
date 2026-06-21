@@ -111,12 +111,16 @@
 
       <!-- Default empty -> avoid trying to Parse empty string -->
       <_J2N_Version_Numeric Condition="$(_J2N_Version_Numeric) == ''"></_J2N_Version_Numeric>
+      
+      <_J2N_Version_2_0_Or_Greater Condition="$(_J2N_Version_Numeric) != '' And $([System.Version]::Parse('$(_J2N_Version_Numeric)').CompareTo($([System.Version]::new('2.0'))) &gt;= 0)">true</_J2N_Version_2_0_Or_Greater>
+      <_J2N_Version_2_1_Or_Greater Condition="$(_J2N_Version_Numeric) != '' And $([System.Version]::Parse('$(_J2N_Version_Numeric)').CompareTo($([System.Version]::new('2.1'))) &gt;= 0)">true</_J2N_Version_2_1_Or_Greater>
+      <_J2N_Version_2_2_Or_Greater Condition="$(_J2N_Version_Numeric) != '' And $([System.Version]::Parse('$(_J2N_Version_Numeric)').CompareTo($([System.Version]::new('2.2'))) &gt;= 0)">true</_J2N_Version_2_2_Or_Greater>
     
       <!-- This is defined in SpanTools.ValueStringBuilder.Generator.targets (in the NuGet package) -->
-      <DefineConstants Condition=" '$(_J2N_PkgRef_Version_2)' != '' ">FEATURE_J2N</DefineConstants>
-      <DefineConstants Condition="$(_J2N_Version_Numeric) != '' And $([System.Version]::Parse('$(_J2N_Version_Numeric)').CompareTo($([System.Version]::new('2.0'))) &gt;= 0)">FEATURE_J2N_2_0_OR_GREATER</DefineConstants>
-      <DefineConstants Condition="$(_J2N_Version_Numeric) != '' And $([System.Version]::Parse('$(_J2N_Version_Numeric)').CompareTo($([System.Version]::new('2.1'))) &gt;= 0)">FEATURE_J2N_2_1_OR_GREATER</DefineConstants>
-      <DefineConstants Condition="$(_J2N_Version_Numeric) != '' And $([System.Version]::Parse('$(_J2N_Version_Numeric)').CompareTo($([System.Version]::new('2.2'))) &gt;= 0)">FEATURE_J2N_2_2_OR_GREATER</DefineConstants>
+      <DefineConstants Condition=" '$(_J2N_PkgRef_Version_2)' != '' ">$(DefineConstants);FEATURE_J2N</DefineConstants>
+      <DefineConstants Condition=" '$(_J2N_Version_2_0_Or_Greater)' == 'true' ">$(DefineConstants);FEATURE_J2N_2_0_OR_GREATER</DefineConstants>
+      <DefineConstants Condition=" '$(_J2N_Version_2_1_Or_Greater)' == 'true' ">$(DefineConstants);FEATURE_J2N_2_1_OR_GREATER</DefineConstants>
+      <DefineConstants Condition=" '$(_J2N_Version_2_2_Or_Greater)' == 'true' ">$(DefineConstants);FEATURE_J2N_2_2_OR_GREATER</DefineConstants>
     
       <_EffectiveNamespace>$(RootNamespace)</_EffectiveNamespace>
       <_EffectiveNamespace Condition=" '$(ValueStringBuilder_Namespace)' != '' ">$(ValueStringBuilder_Namespace)</_EffectiveNamespace>
@@ -131,7 +135,7 @@
       <DefineConstants Condition=" '$(ValueStringBuilder_IncludeAsMemoryMethods.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_INCLUDEASMEMORYMETHODS</DefineConstants>
       <DefineConstants Condition=" '$(ValueStringBuilder_IncludeMaxLengthTracking.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_INCLUDEMAXLENGTHTRACKING</DefineConstants>
       <DefineConstants Condition=" '$(ValueStringBuilder_UseJavaStyleFormatting.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEFORMATTING</DefineConstants>
-      <DefineConstants Condition=" '$(ValueStringBuilder_UseJavaStyleIndexOf.ToLower())' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEINDEXOF</DefineConstants>
+      <DefineConstants Condition=" '$(ValueStringBuilder_UseJavaStyleIndexOf.ToLower())' == 'true' And '$(_J2N_Version_2_2_Or_Greater)' == 'true' ">$(DefineConstants);FEATURE_VALUESTRINGBUILDER_USEJAVASTYLEINDEXOF</DefineConstants>
     </PropertyGroup>
     
   </Target>
