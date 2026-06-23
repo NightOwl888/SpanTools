@@ -11,7 +11,8 @@
       ProjectAssetsFile="$(ProjectAssetsFile)"
       TargetFramework="$(TargetFramework)"
       TargetFrameworkMoniker="$(TargetFrameworkMoniker)"
-      PackageId="J2N">
+      PackageId="J2N"
+      EnableDiagnostics="$(SpanToolsDiagnositcs)">
 
       <Output TaskParameter="PackageVersion" PropertyName="_J2N_ResolvedPackageVersion" />
     </ResolvePackageVersionTask>

@@ -17,14 +17,19 @@ namespace SpanTools.Tasks
         [Required]
         public string PackageId { get; set; } = string.Empty;
 
+        public bool EnableDiagnostics { get; set; } = false;
+
         [Output]
         public string PackageVersion { get; set; } = string.Empty;
 
         public override bool Execute()
         {
-            Log.LogMessage(
+            if (EnableDiagnostics)
+            {
+                Log.LogMessage(
                 MessageImportance.High,
                 $"Looking for package '{PackageId}','{TargetFramework}','{TargetFrameworkMoniker}'");
+            }
 
             PackageVersion =
                 ProjectAssetsParser.FindPackageVersion(
@@ -34,9 +39,12 @@ namespace SpanTools.Tasks
                     PackageId)
                 ?? string.Empty;
 
-            Log.LogMessage(
+            if (EnableDiagnostics)
+            {
+                Log.LogMessage(
                 MessageImportance.High,
                 $"Package '{PackageId}','{TargetFramework}','{TargetFrameworkMoniker}' resulted in version '{PackageVersion}'");
+            }
 
             return true;
         }
